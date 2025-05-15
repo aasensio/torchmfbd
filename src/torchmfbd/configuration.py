@@ -19,6 +19,9 @@ def _check_config(config):
     
     if "apodization_border" not in config["images"]:
         config["images"]["apodization_border"] = 0
+    
+    if "remove_gradient_apodization" not in config["images"]:
+        config["images"]["remove_gradient_apodization"] = False
 
     # Optimization
     if "gpu" not in config["optimization"]:

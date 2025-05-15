@@ -11,7 +11,10 @@ from astropy.io import fits
 
 if __name__ == '__main__':
 
-    lam = 14
+    # pos = ['4000_+1249', '3934_-1236', '3934_-845', '3934_-651', '3934_-585', '3934_-520', '3934_-454', '3934_-391', '3934_-325', '3934_-260', 
+        #    '3934_-195', '3934_-131', '3934_-65', '3934_+0', '3934_+65', '3934_+131', '3934_+195', '3934_+260', '3934_+325', '3934_+391', 
+        #    '3934_+454', '3934_+520', '3934_+585', '3934_+651', '3934_+845', '3934_+1234']
+    lam = 14  # +65 mA
     xy0 = [100, 550]
     npix = 1024
     obs_file = f"../obs/spot_20200727_083509_3934_npix1024_original.h5"
@@ -85,8 +88,8 @@ if __name__ == '__main__':
         f.close()
 
     # Align WB and NB pinholes
-    WB = fits.open('../obs/camXXVII_3950_wheel00002_hrz32773.pinh.fits')[0].data
-    NB = fits.open('../obs/camXXX_3934_wheel00002_hrz32773.pinh.fits')[0].data[::-1,:]
+    WB = fits.open('../obs/camXXVII_3950_wheel00002_hrz33671.pinh.fits')[0].data
+    NB = fits.open('../obs/camXXX_3934_wheel00002_hrz33671.pinh.fits')[0].data[::-1,:]
     frames = np.concatenate([WB[None, :, :], NB[None, :, :]], axis=0)
     print("Estimating alignment between WB and NB...")
     frames /= np.mean(frames, axis=(-1, -2), keepdims=True)
@@ -115,7 +118,7 @@ if __name__ == '__main__':
     warped, tt = torchmfbd.destretch(frames,
             ngrid=64, 
             lr=0.50,
-            reference_frame=0,
+            reference_frame=ind_best_contrast,
             border=6,
             n_iterations=20,
             lambda_tt=0.01)
@@ -129,25 +132,21 @@ if __name__ == '__main__':
     # Patchify and add the frames    
     frames_patches = [None] * 2
     for i in range(2):
-        frames_patches[i] = patchify.patchify(frames[:, i, :, 0:512, 0:512], patch_size=32, stride_size=10, flatten_sequences=True)
+        frames_patches[i] = patchify.patchify(frames[:, i, :, 0:512, 0:512], patch_size=128, stride_size=40, flatten_sequences=True)
         noise = torchmfbd.compute_noise(frames_patches[i][0:1, 0:1, ...])
         decSI.add_frames(frames_patches[i], id_object=i, id_diversity=0, diversity=0.0, sigma=noise)
                 
     decSI.deconvolve(infer_object=False, 
-                     optimizer='first',                      
-                     simultaneous_sequences=2500,
+                     optimizer='adam',                      
+                     simultaneous_sequences=500,
                      n_iterations=450)
 
     best_frame = []        
     obj = []
     for i in range(2):
-        obj.append(patchify.unpatchify(decSI.obj[i], apodization=6, weight_type='cosine', weight_params=30).cpu().numpy())
+        obj.append(patchify.unpatchify(decSI.obj[i], apodization=18, weight_type='cosine', weight_params=30).cpu().numpy())
         best_frame.append(patchify.unpatchify(frames_patches[i][:, ind_best_contrast, :, :], apodization=6, weight_type='cosine', weight_params=30).cpu().numpy())
     
-    fig, ax = pl.subplots(nrows=2, ncols=1, figsize=(5, 10))
-    ax[0].imshow(frames[0, 0, 0, :, :])
-    ax[1].imshow(obj[0][0, :, :])
-
     mfbd = [None] * 2
     mfbd[0] = fits.open('../aux/camXXVIII_2020-07-27T08:35:09_00000_12.00ms_G10.00_3934_3934_+65.fits')[0].data[None, :, :]
     mfbd[1] = fits.open('../aux/camXXX_2020-07-27T08:35:09_00000_12.00ms_G10.00_3934_3934_+65.fits')[0].data[None, :, :]

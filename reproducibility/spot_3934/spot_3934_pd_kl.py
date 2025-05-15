@@ -97,7 +97,7 @@ if __name__ == '__main__':
     # WB and NB
     frames = np.concatenate([WB[None, :, :], NB[None, :, :]], axis=0)
     print("Estimating alignment between WB and NB...")
-    frames /= np.mean(frames, axis=(-1, -2), keepdims=True)
+    # frames /= np.mean(frames, axis=(-1, -2), keepdims=True)
     frames = torch.tensor(frames.astype('float32'))
     warped_NB, affine_WB_NB = torchmfbd.align(frames,
                 lr=0.0050,
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     # WB and PD
     frames = np.concatenate([WB[None, :, :], PD[None, :, :]], axis=0)
     print("Estimating alignment between WB and PD...")
-    frames /= np.mean(frames, axis=(-1, -2), keepdims=True)
+    # frames /= np.mean(frames, axis=(-1, -2), keepdims=True)
     frames = torch.tensor(frames.astype('float32'))
     warped_PD, affine_WB_PD = torchmfbd.align(frames,
                 lr=0.0050,
@@ -155,7 +155,7 @@ if __name__ == '__main__':
     warped, tt = torchmfbd.destretch(frames_aligned,
             ngrid=64, 
             lr=0.50,
-            reference_frame=0,
+            reference_frame=ind_best_contrast,
             border=6,
             n_iterations=20,
             lambda_tt=0.01)
@@ -164,12 +164,12 @@ if __name__ == '__main__':
             
     n_scans, n_obj, n_frames, nx, ny = warped.shape
     
-    decSI = torchmfbd.Deconvolution('spot_3934_kl_patches.yaml')
+    decSI = torchmfbd.Deconvolution('spot_3934_pd_kl_patches.yaml')
 
     # Patchify and add the frames
-    frames_patches = [None] * 2
+    frames_patches = [None] * 2    
     for i in range(2):        
-        frames_patches[i] = patchify.patchify(warped[:, i, :, 0:512, 0:512], patch_size=32, stride_size=10, flatten_sequences=True)
+        frames_patches[i] = patchify.patchify(warped[:, i, :, 0:512, 0:512], patch_size=128, stride_size=40, flatten_sequences=True)
         noise = torchmfbd.compute_noise(frames_patches[i][0:1, 0:1, ...])
         decSI.add_frames(frames_patches[i], id_object=i, id_diversity=0, diversity=0.0, sigma=noise)
 
@@ -179,25 +179,21 @@ if __name__ == '__main__':
     Delta = 1.0 * wavelength # 1 lambda    
     d_cm = 8 * FD**2 * Delta
     div = np.pi * d_cm / (8.0 * np.sqrt(3) * wavelength * FD**2)
-    frames_PD = patchify.patchify(warped[:, 2, :, 0:512, 0:512], patch_size=32, stride_size=10, flatten_sequences=True)
+    frames_PD = patchify.patchify(warped[:, 2, :, 0:512, 0:512], patch_size=128, stride_size=40, flatten_sequences=True)
     noise = torchmfbd.compute_noise(frames_PD[0:1, 0:1, ...])
     decSI.add_frames(frames_PD, id_object=0, id_diversity=1, diversity=div, sigma=noise)
                 
     decSI.deconvolve(infer_object=False, 
-                     optimizer='first',                      
-                     simultaneous_sequences=2500,
+                     optimizer='adam',                      
+                     simultaneous_sequences=100,
                      n_iterations=450)
             
     best_frame = []
     obj = []
     for i in range(2):
-        obj.append(patchify.unpatchify(decSI.obj[i], apodization=6, weight_type='cosine', weight_params=30).cpu().numpy())
+        obj.append(patchify.unpatchify(decSI.obj[i], apodization=18, weight_type='cosine', weight_params=30).cpu().numpy())
         best_frame.append(patchify.unpatchify(frames_patches[i][:, ind_best_contrast, :, :], apodization=6, weight_type='cosine', weight_params=30).cpu().numpy())
     
-    fig, ax = pl.subplots(nrows=2, ncols=2, figsize=(10, 10))
-    for i in range(2):
-        ax[0, i].imshow(warped[0, i, 0, :, :])
-        ax[1, i].imshow(obj[i][0, :, :])
 
     mfbd = [None] * 2
     mfbd[0] = fits.open('../aux/camXXVIII_2020-07-27T08:35:09_00000_12.00ms_G10.00_3934_3934_+65.fits')[0].data[None, :, :]
@@ -211,5 +207,7 @@ if __name__ == '__main__':
     hdu0 = fits.PrimaryHDU(best_frame)
     hdu1 = fits.ImageHDU(obj)
     hdu2 = fits.ImageHDU(mfbd)
-    hdul = fits.HDUList([hdu0, hdu1, hdu2])
+    hdu3 = fits.ImageHDU(decSI.obj[0].cpu().numpy())
+    hdu4 = fits.ImageHDU(decSI.obj[1].cpu().numpy())
+    hdul = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4])
     hdul.writeto(f'spot_3934_pd.fits', overwrite=True)

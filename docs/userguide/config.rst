@@ -143,6 +143,7 @@ Spatially variant
         wavelength : 8542.0
         pix_size : 0.059
         apodization_border : 6
+        remove_gradient_apodization : False
 
     object1:
         wavelength : 8542.0
@@ -201,6 +202,7 @@ images
 * ``n_pixel`` : size in pixels of the images to be deconvolved. In case the images are mosaicked to take into account the size of the anisoplanatic patch, this keyword gives the size of the patches
 * ``pix_size`` : pixel size in arcsec
 * ``apodization_border`` : border of the apodization in pixels to avoid edge effects in the Fourier transform used for the convolution
+* ``remove_gradient_apodization`` : if True, the gradient of the image is removed before the apodization. This is useful to remove artifacts when the images have strong gradients
 
 objects
 ^^^^^^^

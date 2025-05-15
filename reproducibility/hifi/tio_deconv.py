@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     # Deconvolve
     decSI.deconvolve(infer_object=False, 
-                     optimizer='first', 
+                     optimizer='adam', 
                      simultaneous_sequences=200,
                      n_iterations=150)
             

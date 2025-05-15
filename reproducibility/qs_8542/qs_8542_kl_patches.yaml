@@ -3,14 +3,14 @@ telescope:
     central_obscuration : 0.0
 
 images:
-    n_pixel : 64
+    n_pixel : 88
     pix_size : 0.059
     apodization_border : 6
 
 object1:
     wavelength : 8542.0
     image_filter: scharmer
-    cutoff : [0.75, 0.80]
+    cutoff : [0.65, 0.70]
 
 object2:
     wavelength : 8542.0
@@ -33,7 +33,7 @@ regularization:
 
 psf:
     model : kl
-    nmax_modes : 44
+    nmax_modes : 54
 
 initialization:
     object : contrast

@@ -64,7 +64,7 @@ if __name__ == '__main__':
             
     
     decSI.deconvolve(infer_object=False, 
-                     optimizer='first', 
+                     optimizer='adam', 
                      simultaneous_sequences=16,
                      n_iterations=100)
         

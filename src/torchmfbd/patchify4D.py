@@ -130,6 +130,8 @@ class Patchify4D(object):
         if weight_type == 'cosine':
             npix = x2.shape[-2]
             npix_apod = min(weight_params, npix//2)
+
+            # Add a small value to avoid division by zero
             win = np.hanning(2*npix_apod)
             winOut = np.ones(npix)
             winOut[0:npix_apod] = win[0:npix_apod]
@@ -163,7 +165,7 @@ class Patchify4D(object):
         x2 = rearrange(x2, '(n) f x y -> n f x y', n=self.n_scans)
         mask = rearrange(mask, '(n) f x y -> n f x y', n=self.n_scans)
                 
-        final = x2 / mask
+        final = x2 / (mask + 1e-10)
 
         if xndim == 3:
             final = final.squeeze(1)

@@ -90,7 +90,7 @@ The deconvolution can be carried out by the following code:
             
     
     deconv.deconvolve(infer_object=False, 
-                     optimizer='first', 
+                     optimizer='adam', 
                      simultaneous_sequences=16,
                      n_iterations=20)
             
@@ -118,7 +118,7 @@ diversity channel ``id_diversity``. In this case, we have two objects and no div
 The deconvolution is carried out by calling the ``deconvolve`` method. The method takes several arguments:
 
 * ``infer_object``: If ``False``, the object is inferred using the analytic solution given by the Wiener filter (see, e.g., van Noort et al. (2005)). Otherwise, the object is inferred by the optimizer.
-* ``optimizer``: The optimizer to use. The optimizer can be either ``first`` (first order Adam) or ``second`` (second order L-BFGS, that is more memory and time consuming but more efficient in terms of number of iterations).
+* ``optimizer``: The optimizer to use. The optimizer can be either ``adam`` (first order Adam) or ``lbfgs`` (second order L-BFGS, that is more memory and time consuming but more efficient in terms of number of iterations).
 * ``simultaneous_sequences``: The number of patches to deconvolve simultaneously. If you have plenty of VRAM, you can increase this number to speed up the deconvolution.
 * ``n_iterations``: The number of iterations to carry out.
 

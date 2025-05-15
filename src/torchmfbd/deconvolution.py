@@ -20,6 +20,12 @@ import torchmfbd.configuration as configuration
 import time
 import scipy.optimize as optim
 from astropy.io import fits
+try:
+    import ncg_optimizer
+    NGC_OPTIMIZER = True
+except:
+    NGC_OPTIMIZER = False
+    pass
 
 class Deconvolution(object):
     def __init__(self, config, add_piston=False):
@@ -84,6 +90,7 @@ class Deconvolution(object):
         self.n_modes = self.config['psf']['nmax_modes']
         self.npix = self.config['images']['n_pixel']
         self.npix_apod = self.config['images']['apodization_border']
+        self.remove_gradient_apodization = self.config['images']['remove_gradient_apodization']
 
         self.psf_model = self.config['psf']['model']
 
@@ -93,6 +100,10 @@ class Deconvolution(object):
         # Generate Hamming window function for WFS correlation
         if (self.npix_apod > 0):
             self.logger.info(f"Using apodization mask with a border of {self.npix_apod} pixels")
+            if self.remove_gradient_apodization:
+                self.logger.info(f"Removing gradient in apodization")
+            else:
+                self.logger.info(f"Not removing gradient in apodization")
             win = np.hanning(2*self.npix_apod)
             winOut = np.ones(self.npix)
             winOut[0:self.npix_apod] = win[0:self.npix_apod]
@@ -731,7 +742,7 @@ class Deconvolution(object):
         
         return torch.tensor(mask.astype('float32')).to(Sconj_S.device)
 
-    def compute_object(self, images_ft, psf_ft, sigma, type_filter='tophat'):
+    def compute_object(self, images_ft, psf_ft, sigma, plane, type_filter='tophat'):
         """
         Compute the object in Fourier space using the specified filter.
         Parameters:
@@ -753,8 +764,12 @@ class Deconvolution(object):
         
         for i in range(self.n_o):            
                         
-            Sconj_S = torch.sum(sigma[i][:, :, None, None] * torch.conj(psf_ft[i]) * psf_ft[i], dim=1)
-            Sconj_I = torch.sum(sigma[i][:, :, None, None] * torch.conj(psf_ft[i]) * images_ft[i], dim=1)
+            # Sconj_S = torch.sum(sigma[i][:, :, None, None] * torch.conj(psf_ft[i]) * psf_ft[i], dim=1)
+            # Sconj_I = torch.sum(sigma[i][:, :, None, None] * torch.conj(psf_ft[i]) * images_ft[i], dim=1)
+
+            # We assume, for the moment, that the noise is the same for all frames
+            Sconj_S = torch.sum(torch.conj(psf_ft[i]) * psf_ft[i], dim=1)
+            Sconj_I = torch.sum(torch.conj(psf_ft[i]) * images_ft[i], dim=1)
             
             # Use Lofdahl & Scharmer (1994) filter
             if (self.image_filter[i] == 'scharmer'):
@@ -771,6 +786,10 @@ class Deconvolution(object):
                 out_filter_ft[i] = out_ft[i] * self.mask_diffraction_th[i][None, :, :]
 
             out_filter[i] = torch.fft.ifft2(out_filter_ft[i]).real
+
+            # Add the gradient that we removed
+            if self.remove_gradient_apodization:
+                 out_filter[i] += plane[i][:, 0, :, :]
         
         return out_ft, out_filter_ft, out_filter
 
@@ -820,6 +839,7 @@ class Deconvolution(object):
             self.logger.info(f"Estimating noise...")
             sigma = noise.compute_noise(frames).to(self.device)
             self.logger.info(f"   * Average noise: {torch.mean(sigma)}")
+            # sigma = 1.0 / sigma**2            
             # sigma = torch.tensor(sigma.astype('float32')).to(self.device)
 
         self.ind_object.append(id_object)        
@@ -891,6 +911,7 @@ class Deconvolution(object):
         n_seq, n_f, n_x, n_y = self.frames[0].shape
         
         frames = [None] * self.n_o
+        plane = [None] * self.n_o
         diversity = [None] * self.n_o
         sigma = [None] * self.n_o
         index_frames_diversity = [None] * self.n_o
@@ -904,9 +925,15 @@ class Deconvolution(object):
         
         for i in range(self.n_o):
             frames[i] = torch.zeros(n_seq, n_frames_per_object[i], n_x, n_y)
+            plane[i] = torch.zeros(n_seq, 1, n_x, n_y)
             diversity[i] = torch.zeros(n_seq, n_frames_per_object[i])
             sigma[i] = torch.zeros(n_seq, n_frames_per_object[i])
             index_frames_diversity[i] = [0] * n_diversity_per_object[i]
+
+        sigma_max = 0.0
+        for i in range(self.n_bursts):
+            sigma_max = max(sigma_max, torch.max(self.sigma[i]))            
+
         
         for i in range(self.n_bursts):
 
@@ -918,14 +945,16 @@ class Deconvolution(object):
 
             index_frames_diversity[i_obj][i_div] = f0
 
-            frames[i_obj][:, f0:f1, :, :] = util.apodize(self.frames[i], self.window)
-
+            frames[i_obj][:, f0:f1, :, :], subtract = util.apodize(self.frames[i], self.window, gradient=self.remove_gradient_apodization)
+            if self.remove_gradient_apodization:
+                plane[i_obj][:, :, :, :] = subtract
+            
             # Set the diversity for the current object for all frames and for the sequence            
             diversity[i_obj][:, f0:f1] = self.diversity[i][:, None].expand(-1, n_f)
             
-            sigma[i_obj][:, f0:f1] = self.sigma[i]
+            sigma[i_obj][:, f0:f1] = self.sigma[i] #/ sigma_max
                     
-        return frames, diversity, index_frames_diversity, sigma
+        return frames, diversity, index_frames_diversity, sigma, plane
     
     def update_object(self, cutoffs=None):
         """
@@ -980,11 +1009,13 @@ class Deconvolution(object):
                 self.logger.info(f"Processing sequence {seq[0]+1}/{n_seq_total}")
 
             frames_apodized_seq = []
+            plane_seq = []
             frames_ft = []
             sigma_seq = []
             diversity_seq = []
             for i in range(self.n_o):
                 frames_apodized_seq.append(self.frames_apodized[i][seq, ...].to(self.device))
+                plane_seq.append(self.plane[i][seq, ...].to(self.device))
                 frames_ft.append(torch.fft.fft2(self.frames_apodized[i][seq, ...]).to(self.device))
                 sigma_seq.append(self.sigma[i][seq, ...].to(self.device))
                 diversity_seq.append(self.diversity[i][seq, ...].to(self.device))
@@ -1004,8 +1035,8 @@ class Deconvolution(object):
                 # Filter in Fourier
                 obj_filter_ft = self.fft_filter(obj_ft)                
 
-            else:
-                obj_ft, obj_filter_ft, obj_filter = self.compute_object(frames_ft, psf_ft, sigma_seq)  
+            else:                
+                obj_ft, obj_filter_ft, obj_filter = self.compute_object(frames_ft, psf_ft, sigma_seq, plane_seq)  
                                    
 
             obj_filter_diffraction = [None] * self.n_o
@@ -1088,7 +1119,7 @@ class Deconvolution(object):
     def deconvolve(self,                                    
                    simultaneous_sequences=1, 
                    infer_object=False, 
-                   optimizer='first', 
+                   optimizer='adam', 
                    obj_in=None, 
                    modes_in=None,                    
                    n_iterations=20):
@@ -1107,7 +1138,7 @@ class Deconvolution(object):
         infer_object : bool, optional
             Whether to infer the object during optimization (default is False).
         optimizer : str, optional
-            The optimizer to use ('first' for Adam, 'second' for LBFGS) (default is 'first').
+            The optimizer to use ('adam' for Adam, 'lbfgs' for LBFGS) (default is 'adam').
         obj_in : torch.Tensor, optional
             Initial object to use for deconvolution (default is None).
         modes_in : torch.Tensor, optional
@@ -1133,8 +1164,8 @@ class Deconvolution(object):
         self.logger.info(f" *** SPATIALLY INVARIANT DECONVOLUTION ***")
         self.logger.info(f" *****************************************")
 
-        # Combine all frames
-        self.frames_apodized, self.diversity, self.init_frame_diversity, self.sigma = self.combine_frames()
+        # Combine all frames        
+        self.frames_apodized, self.diversity, self.init_frame_diversity, self.sigma, self.plane = self.combine_frames()
 
         # Define all basis
         self.define_basis()
@@ -1153,7 +1184,7 @@ class Deconvolution(object):
             self.logger.info(f"     - Number of frames {n_f}...")
             self.logger.info(f"     - Number of diversity channels {len(self.init_frame_diversity[i])}...")
             for j, ind in enumerate(self.init_frame_diversity[i]):
-                self.logger.info(f"       -> Diversity {j} = {self.diversity[i][0, ind]}...")
+                self.logger.info(f"       -> Diversity {j} = {self.diversity[i][0, ind]} - Noise = {self.sigma[i][0, ind]}...")
             self.logger.info(f"     - Size of frames {n_x} x {n_y}...")
             self.logger.info(f"     - Filter: {self.image_filter[i]} - cutoff: {self.cutoff[i]}...")
                 
@@ -1225,11 +1256,13 @@ class Deconvolution(object):
                 self.logger.info(f"Processing sequence {seq[0]+1}/{n_seq_total} {label_time}")
 
             frames_apodized_seq = []
+            plane_seq = []
             frames_ft = []
             sigma_seq = []
             diversity_seq = []
             for i in range(self.n_o):
                 frames_apodized_seq.append(self.frames_apodized[i][seq, ...].to(self.device))
+                plane_seq.append(self.plane[i][seq, ...].to(self.device))
                 frames_ft.append(torch.fft.fft2(self.frames_apodized[i][seq, ...]).to(self.device))
                 sigma_seq.append(self.sigma[i][seq, ...].to(self.device))
                 diversity_seq.append(self.diversity[i][seq, ...].to(self.device))
@@ -1281,38 +1314,41 @@ class Deconvolution(object):
                     modes = torch.tensor(tmp[None, None, :].astype('float32')).expand((n_seq, self.n_f, self.n_modes))
                     modes = modes.clone().detach().to(self.device).requires_grad_(True)
                     
-            # Second order optimizer
-            if optimizer == 'second':
-                if (infer_object):
-                    parameters = [modes]
-                    obj = [None] * self.n_o
+            if (infer_object):
+                self.logger.info(f"Optimizing object and modes...")
 
-                    for i in range(self.n_o):
-                        obj[i] = obj_init[i].clone().detach().to(self.device).requires_grad_(True)
-                        parameters.append(obj[i])
-                else:                
-                    parameters = [modes]
+                parameters = [{'params': modes, 'lr': self.lr_modes}]
+                obj = [None] * self.n_o
 
-                opt = torch.optim.LBFGS(parameters, lr=0.01)
-
+                for i in range(self.n_o):
+                    obj[i] = obj_init[i].clone().detach().to(self.device).requires_grad_(True)
+                    parameters.append({'params': obj[i], 'lr': self.lr_obj})
+                                    
             else:
+                self.logger.info(f"Optimizing modes only...")                
+                parameters = [{'params': modes, 'lr': self.lr_modes}]
 
-                if (infer_object):
-                    self.logger.info(f"Optimizing object and modes...")
-
-                    parameters = [{'params': modes, 'lr': self.lr_modes}]
-                    obj = [None] * self.n_o
-
-                    for i in range(self.n_o):
-                        obj[i] = obj_init[i].clone().detach().to(self.device).requires_grad_(True)
-                        parameters.append({'params': obj[i], 'lr': self.lr_obj})
-                                        
-                else:
-                    self.logger.info(f"Optimizing modes only...")                
-                    parameters = [{'params': modes, 'lr': self.lr_modes}]
-
+            # Second order optimizer
+            if optimizer == 'lbfgs':
+                self.logger.info(f"Using LBFGS optimizer...")
+                opt = torch.optim.LBFGS(parameters, lr=0.01)
+            if optimizer == 'adam':
+                self.logger.info(f"Using Adam optimizer...")
                 opt = torch.optim.Adam(parameters)
-                # opt = Shampoo(parameters)                
+            if optimizer == 'adamw':
+                self.logger.info(f"Using Adam optimizer...")
+                opt = torch.optim.AdamW(parameters)
+            if optimizer == 'cg':
+                if NGC_OPTIMIZER:
+                    self.logger.info(f"Using CG optimizer...")
+                    opt = ncg_optimizer.BASIC(parameters, method = 'CD', line_search = 'Strong_Wolfe', c1 = 1e-4, c2 = 0.9, lr = 1, rho = 0.5, eps=1e-8)
+                else:
+                    self.logger.info(f"Using Adam optimizer...")
+                    opt = torch.optim.Adam(parameters)
+
+            if optimizer not in ['lbfgs', 'adam', 'adamw', 'cg']:
+                raise ValueError(f"Optimizer {optimizer} not supported")
+
                 
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, 3*n_iterations)
 
@@ -1320,7 +1356,7 @@ class Deconvolution(object):
 
             t = tqdm(range(n_iterations))
 
-            if self.psf_model.lower() in ['zernike', 'kl']:            
+            if self.psf_model.lower() in ['zernike', 'kl']:
                 n_active = 2
             
             if self.psf_model.lower() == 'nmf':
@@ -1331,82 +1367,104 @@ class Deconvolution(object):
             self.t0_convergence = time.time()
                 
             for loop in t:
-                            
-                opt.zero_grad(set_to_none=True)
-
-                if self.psf_model.lower() in ['zernike', 'kl']:
-            
-                    # Compute PSF from current wavefront coefficients and reference 
-                    modes_centered = modes.clone()
-                    modes_centered[:, :, 0:2] = modes_centered[:, :, 0:2] - modes[:, 0:1, 0:2]
                                 
-                    # modes -> (n_seq, n_f, self.n_modes)
-                    psf, psf_ft = self.compute_psfs(modes_centered[:, :, 0:n_active], diversity_seq)
+                def closure():
+                            
+                    opt.zero_grad(set_to_none=True)
+
+                    if self.psf_model.lower() in ['zernike', 'kl']:
                 
-                if self.psf_model.lower() == 'nmf':
-                    psf, psf_ft = self.compute_psfs_nmf(modes[:, :, 0:n_active])
-                
-                if (infer_object):
-
-                    obj_ft = [None] * self.n_o
-                    obj_filter_ft = [None] * self.n_o
-
-                    loss_mse = torch.tensor(0.0).to(self.device)
+                        # Compute PSF from current wavefront coefficients and reference 
+                        modes_centered = modes.clone()
+                        modes_centered[:, :, 0:2] = modes_centered[:, :, 0:2] - modes[:, 0:1, 0:2]
+                                    
+                        # modes -> (n_seq, n_f, self.n_modes)
+                        psf, psf_ft = self.compute_psfs(modes_centered[:, :, 0:n_active], diversity_seq)
                     
-                    for i in range(self.n_o):
-                        # Compute filtered object from the current estimate while also clamping negative values
-                        if (self.config['optimization']['transform'] == 'softplus'):
-                            tmp = torch.clamp(F.softplus(obj[i]), min=0.0)
-                            obj_ft[i] = torch.fft.fft2(tmp)
-                        else:
-                            tmp = torch.clamp(obj[i], min=0.0)
-                            obj_ft[i] = torch.fft.fft2(tmp)
+                    if self.psf_model.lower() == 'nmf':
+                        psf, psf_ft = self.compute_psfs_nmf(modes[:, :, 0:n_active])
                     
-                    # Filter in Fourier
-                    obj_filter_ft = self.fft_filter(obj_ft)
+                    if (infer_object):
 
-                    for i in range(self.n_o):
+                        obj_ft = [None] * self.n_o
+                        obj_filter_ft = [None] * self.n_o
 
-                        degraded_ft = obj_ft[i][:, None, :, :] * psf_ft[i]
-
-                        # residual = self.weight[:, :, None, None, None] * (degraded_ft - frames_ft)
-                        residual =  (degraded_ft - frames_ft[i])
-                        loss_mse += torch.mean((residual * torch.conj(residual)).real) / self.npix**2
-
-                else:                        
-
-                    if self.show_object_info:
-                        obj_ft, obj_filter_ft, obj_filter = self.compute_object(frames_ft, psf_ft, sigma_seq)
-                    
-                    loss_mse = torch.tensor(0.0).to(self.device)
-
-                    # Sum over objects, frames and diversity channels
-                    for i in range(self.n_o):
-                        Q = torch.mean(self.sigma[i]) + torch.sum(psf_ft[i] * torch.conj(psf_ft[i]), dim=1)
-                        t1 = torch.sum(frames_ft[i] * torch.conj(frames_ft[i]), dim=1)
-                        t2 = torch.sum(torch.conj(frames_ft[i]) * psf_ft[i], dim=1)                        
-                        loss_mse += torch.mean(t1 - t2 * torch.conj(t2) / Q).real / self.npix**2
-
-                # If MOMFBD is used, then the object cannot be regularized. Look for alternatives                
-                # Object regularization
-                loss_obj = torch.tensor(0.0).to(self.device)
-                for index in self.index_regularization['object']:
-                    loss_obj += self.regularization[index](obj_filter)
-                
-                # Total loss
-                loss = loss_mse + loss_obj
-                                                    
-                # Save some information for the progress bar
-                # self.loss_local = loss.detach()
-                # self.obj_filter = [None] * self.n_o
-                # for i in range(self.n_o):
-                #     self.obj_filter[i] = obj_filter[i].detach()
-                # self.loss_mse_local = loss_mse.detach()
-                # self.loss_obj_local = loss_obj.detach()
-
-                loss.backward()
+                        loss_mse = torch.tensor(0.0).to(self.device)
                         
-                opt.step()
+                        for i in range(self.n_o):
+                            # Compute filtered object from the current estimate while also clamping negative values
+                            if (self.config['optimization']['transform'] == 'softplus'):
+                                tmp = torch.clamp(F.softplus(obj[i]), min=0.0)
+                                obj_ft[i] = torch.fft.fft2(tmp)
+                            else:
+                                tmp = torch.clamp(obj[i], min=0.0)
+                                obj_ft[i] = torch.fft.fft2(tmp)
+                        
+                        # Filter in Fourier
+                        obj_filter_ft = self.fft_filter(obj_ft)
+
+                        for i in range(self.n_o):
+
+                            degraded_ft = obj_ft[i][:, None, :, :] * psf_ft[i]
+
+                            # residual = self.weight[:, :, None, None, None] * (degraded_ft - frames_ft)
+                            residual =  (degraded_ft - frames_ft[i])
+                            loss_mse += torch.mean((residual * torch.conj(residual)).real) / self.npix**2
+
+                    else:                        
+
+                        if self.show_object_info:
+                            obj_ft, obj_filter_ft, obj_filter = self.compute_object(frames_ft, psf_ft, sigma_seq, plane_seq)
+                        
+                        loss_mse = torch.tensor(0.0).to(self.device)
+
+                        # Sum over objects, frames and diversity channels
+                        for i in range(self.n_o):
+
+                            # sigma is acting, indeed, as a regularization, to avoid zero division
+                            # We could use another number (constant or not) but this one does the trick
+                            Q = torch.mean(self.sigma[i]) + torch.sum(psf_ft[i] * torch.conj(psf_ft[i]), dim=1)
+                            # Q = 1e-10 + torch.sum(psf_ft[i] * torch.conj(psf_ft[i]), dim=1)
+                            t1 = torch.sum(frames_ft[i] * torch.conj(frames_ft[i]), dim=1)
+                            t2 = torch.sum(torch.conj(frames_ft[i]) * psf_ft[i], dim=1)       
+
+                            loss_mse += torch.mean(t1 - t2 * torch.conj(t2) / Q).real / self.npix**2
+
+                    # If MOMFBD is used, then the object cannot be regularized. Look for alternatives                
+                    # Object regularization
+                    loss_obj = torch.tensor(0.0).to(self.device)
+                    for index in self.index_regularization['object']:
+                        loss_obj += self.regularization[index](obj_filter)
+                    
+                    # Total loss
+                    loss = loss_mse + loss_obj
+                                                        
+                    # Save some information for the progress bar
+                    # self.loss_local = loss.detach()
+                    # self.obj_filter = [None] * self.n_o
+                    # for i in range(self.n_o):
+                    #     self.obj_filter[i] = obj_filter[i].detach()
+                    # self.loss_mse_local = loss_mse.detach()
+                    # self.loss_obj_local = loss_obj.detach()
+
+                    if optimizer == 'cg' and NGC_OPTIMIZER:
+                        loss.backward(retain_graph=True)
+                    else:
+                        loss.backward()
+
+                    self.loss_mse_local = loss_mse
+                    self.loss_obj_local = loss_obj
+                    if self.show_object_info:
+                        self.obj_filter_local = obj_filter
+                    
+                    return loss
+                        
+                loss = opt.step(closure)
+
+                loss_mse = self.loss_mse_local
+                loss_obj = self.loss_obj_local                
+                if self.show_object_info:
+                    obj_filter = self.obj_filter_local
                 
                 # scheduler.step()
 
@@ -1475,7 +1533,7 @@ class Deconvolution(object):
                     obj_filter[i] = torch.fft.ifft2(obj_filter_ft[i]).real
 
             else:
-                obj_ft, obj_filter_ft, obj_filter = self.compute_object(frames_ft, psf_ft, sigma_seq)  
+                obj_ft, obj_filter_ft, obj_filter = self.compute_object(frames_ft, psf_ft, sigma_seq, plane_seq)
                                    
 
             obj_filter_diffraction = [None] * self.n_o

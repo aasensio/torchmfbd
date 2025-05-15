@@ -40,7 +40,7 @@ if __name__ == '__main__':
         decSI.add_frames(frames_patches, id_object=i, id_diversity=0, diversity=0.0)
                 
     decSI.deconvolve(infer_object=False, 
-                     optimizer='first', 
+                     optimizer='adamw', 
                      simultaneous_sequences=90,
                      n_iterations=150)
             

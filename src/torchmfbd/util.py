@@ -74,7 +74,7 @@ class FiniteDifference(torch.nn.Module):
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
-def apodize(frames, window):
+def apodize(frames, window, gradient=False):
     """
     Apodizes the input frames by subtracting the mean value and applying a window function.
     The mean value is computed along the last two dimensions of the input tensor.
@@ -83,6 +83,8 @@ def apodize(frames, window):
     
     Args:    
         frames (torch.Tensor): The input tensor containing the frames to be apodized. The tensor can have 2, 3, 4, or 5 dimensions.
+        window (torch.Tensor): The window function to be applied to the frames. The shape of the window should match the last two dimensions of the input tensor.
+        gradient (bool, optional): If True, the global gradient of the image is removed. Default is False.
     
     Returns:
         torch.Tensor: The apodized frames with the same shape as the input tensor.
@@ -94,8 +96,44 @@ def apodize(frames, window):
 
     ndim = frames.ndim
 
-    mean_val = torch.mean(frames, dim=(-1, -2), keepdim=True)
-    frames_apodized = frames - mean_val
+    # If we want to remove the global gradient of the image
+    if gradient:
+        width, height = frames.shape[-2], frames.shape[-1]
+        x = torch.linspace(0, 1, width)
+        y = torch.linspace(0, 1, height)
+        xv, yv = torch.meshgrid(x, y, indexing='ij')        
+        xv_flat = xv.unsqueeze(1).reshape(-1, 1)
+        yv_flat = yv.unsqueeze(1).reshape(-1, 1)
+        coords = torch.cat((xv_flat, yv_flat), dim=1)
+        A = torch.cat((coords, torch.ones(coords.shape[0], 1)), dim=1).to(frames.device)
+
+        A_inv = torch.linalg.pinv(A)
+
+        xv = xv.to(frames.device)
+        yv = yv.to(frames.device)
+        
+        if ndim == 2:
+            coeff = torch.einsum("ij,j->i", A_inv, frames.reshape(width * height))
+            plane = coeff[0] * xv + coeff[1] * yv + coeff[2]
+            
+        elif ndim == 3:
+            coeff = torch.einsum("ij,aj->ai", A_inv, frames.reshape(frames.shape[0], width * height))
+            plane = coeff[:, 0][:, None, None] * xv[None, :, :] + coeff[:, 1][:, None, None] * yv[None, :, :] + coeff[:, 2][:, None, None]
+            
+        elif ndim == 4:
+            avg_frames = torch.mean(frames, dim=1, keepdim=True)            
+            coeff = torch.einsum("ij,abj->abi", A_inv, avg_frames.reshape(avg_frames.shape[0], avg_frames.shape[1], width * height))
+            plane = coeff[:, :, 0][:, :, None, None] * xv[None, None, :, :] + coeff[:, :, 1][:, :, None, None] * yv[None, None, :, :] + coeff[:, :, 2][:, :, None, None]
+            
+        elif ndim == 5:
+            coeff = torch.einsum("ij,abcj->abci", A_inv, frames.reshape(frames.shape[0], frames.shape[1], frames.shape[2], width * height))
+            plane = coeff[:, :, :, 0][:, :, :, None, None] * xv[None, None, None, :, :] + coeff[:, :, :, 1][:, :, :, None, None] * yv[None, None, None, :, :] + coeff[:, :, :, 2][:, :, :, None, None]
+            
+        frames_apodized = frames - plane
+
+    else:
+        mean_val = torch.mean(frames, dim=(-1, -2), keepdim=True)
+        frames_apodized = frames - mean_val
     
     if ndim == 2:
         frames_apodized *= window
@@ -109,11 +147,14 @@ def apodize(frames, window):
     if ndim == 5:
         frames_apodized *= window[None, None, None, :, :]
 
-    frames_apodized += mean_val
-
-    return frames_apodized
-
-
+    # Add the mean value back to the frames if only the mean was subtracted
+    # If not, the gradient will be added at the end of the reconstruction
+    if not gradient:        
+        frames_apodized += mean_val
+        plane = None
+    
+    return frames_apodized, plane    
+    
 
 def azimuthal_power_old(self, image):        
     """
@@ -146,7 +187,18 @@ def azimuthal_power_old2(image, d=1):
         
     return k, pow1d
 
-def azimuthal_power(image, d=1, apodization=None):
+def azimuthal_power(image, d=1, apodization=None, angles=None, range_angles=5):
+    """
+    Compute the azimuthal power spectrum of an image.
+    Args:
+        image (numpy.ndarray): The input image for which the azimuthal power spectrum is to be computed.
+        d (float, optional): The pixel size in the image. Default is 1.
+        apodization (int, optional): The size of the apodization window. Default is None.
+        angles (list, optional): A list of angles in degrees for which to compute the azimuthal power spectrum. Default is None.
+        range_angles (float, optional): The range of angles around each specified angle (+-range) to include in the computation. Default is 5.
+    Returns:
+        (kvals, Abins) (tuple): The normalized frequency array (kvals) and the azimuthally averaged power spectrum (Abins).
+    """
 
     npix = image.shape[0]
 
@@ -171,6 +223,21 @@ def azimuthal_power(image, d=1, apodization=None):
     knrm = knrm.flatten()
     fourier_amplitudes = fourier_amplitudes.flatten()
 
+    if angles is not None:
+        kangles = np.arctan2(kfreq2D[1], kfreq2D[0]).flatten()
+        kangles = np.degrees(kangles)
+
+        ind_angles = []
+
+        for ang in angles:
+            ind = np.where(np.abs(kangles - ang) < range_angles)
+            ind_angles.append(ind[0])
+
+        ind_angles = np.concatenate(ind_angles)
+
+        knrm = knrm[ind_angles]
+        fourier_amplitudes = fourier_amplitudes[ind_angles]
+    
     kbins = np.arange(0.5, npix//2+1, 1.)
     kvals = 0.5 * (kbins[1:] + kbins[:-1])
     Abins, _, _ = stats.binned_statistic(knrm, fourier_amplitudes,
@@ -228,3 +295,12 @@ def orthogonalize(basis, pupil):
     Q = Q.T.reshape(M, N, N)
 
     return Q
+
+if __name__ == "__main__":
+    x = np.random.rand(256, 256)
+    k, pp = azimuthal_power(x, d=1, angles=[45, -45, 135, -135], range_angles=45)
+    k2, pp2 = azimuthal_power(x, d=1)
+
+    import matplotlib.pyplot as plt
+    plt.loglog(k, pp, label='Azimuthal Power Spectrum')
+    plt.loglog(k2, pp2, label='Azimuthal Power Spectrum (all angles)')

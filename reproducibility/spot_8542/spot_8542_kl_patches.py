@@ -13,7 +13,9 @@ from astropy.io import fits
 if __name__ == '__main__':
 
     xy0 = [200, 200]
-    lam = 7
+
+    # pos = ['-1755', '-780', '-260', '-130', '-65', '+0', '+65', '+130', '+260', '+780', '+1755']
+    lam = 6 # +65 mA
     npix = 512
     obs_file = f"../obs/spot_20200727_083509_8542_npix512_original.h5"
 
@@ -67,12 +69,12 @@ if __name__ == '__main__':
     # Patchify and add the frames
     frames_patches = [None] * 2
     for i in range(2):        
-        frames_patches[i] = patchify.patchify(frames[:, i, :, :, :], patch_size=64, stride_size=32, flatten_sequences=True)
+        frames_patches[i] = patchify.patchify(frames[:, i, :, :, :], patch_size=92, stride_size=40, flatten_sequences=True)
         decSI.add_frames(frames_patches[i], id_object=i, id_diversity=0, diversity=0.0)
             
     
     decSI.deconvolve(infer_object=False, 
-                     optimizer='first',                      
+                     optimizer='adam',                      
                      simultaneous_sequences=250,
                      n_iterations=350)
         
@@ -82,22 +84,19 @@ if __name__ == '__main__':
         obj.append(patchify.unpatchify(decSI.obj[i], apodization=6, weight_type='cosine', weight_params=30).cpu().numpy())        
         best_frame.append(patchify.unpatchify(frames_patches[i][:, ind_best_contrast, :, :], apodization=6, weight_type='cosine', weight_params=30).cpu().numpy())
     
-    fig, ax = pl.subplots(nrows=2, ncols=2, figsize=(10, 10))
-    for i in range(2):
-        ax[0, i].imshow(best_frame[i][0, :, :])
-        ax[1, i].imshow(obj[i][0, :, :])
-
     mfbd = [None] * 2
     mfbd[0] = fits.open('../aux/camXX_2020-07-27T08:35:09_00000_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]
-    mfbd[1] = fits.open('../aux/camXIX_2020-07-27T08:35:09_00000_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]
+    mfbd[1] = fits.open('../aux/camXXV_2020-07-27T08:35:09_00000_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]
     
 
     # Save the object as a fits file
     best_frame = np.concatenate([best_frame[0][0:1, ...], best_frame[1][0:1, ...]], axis=0)
     obj = np.concatenate([obj[0][0:1, ...], obj[1][0:1, ...]], axis=0)
     mfbd = np.concatenate(mfbd, axis=0)
-    hdu0 = fits.PrimaryHDU(best_frame)    
-    hdu1 = fits.ImageHDU(obj)    
+    hdu0 = fits.PrimaryHDU(best_frame)
+    hdu1 = fits.ImageHDU(obj)
     hdu2 = fits.ImageHDU(mfbd)
-    hdul = fits.HDUList([hdu0, hdu1, hdu2])
+    hdu3 = fits.ImageHDU(decSI.obj[0].cpu().numpy())
+    hdu4 = fits.ImageHDU(decSI.obj[1].cpu().numpy())
+    hdul = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4])
     hdul.writeto(f'spot_8542.fits', overwrite=True)

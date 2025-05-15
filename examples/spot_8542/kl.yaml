@@ -6,6 +6,7 @@ images:
     n_pixel : 64    
     pix_size : 0.059
     apodization_border : 6
+    remove_gradient_apodization : True
 
 object1:
     wavelength : 8542.0
@@ -41,6 +42,6 @@ initialization:
     modes_std : 0.0
 
 annealing:
-    type: sigmoid
+    type: linear
     start_pct : 0.0
     end_pct : 0.85

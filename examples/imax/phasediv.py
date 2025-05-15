@@ -50,7 +50,7 @@ if __name__ == '__main__':
     decSI.add_frames(frames_defocus, sigma, id_object=0, id_diversity=1, diversity=div)
 
     decSI.deconvolve(infer_object=False, 
-                     optimizer='first', 
+                     optimizer='adam', 
                      simultaneous_sequences=1,
                      n_iterations=100)
             
