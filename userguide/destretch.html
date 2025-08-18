@@ -1,0 +1,201 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1.7. Destretching &mdash; torchmfbd 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="1.9. Regularization" href="regularization.html" />
+    <link rel="prev" title="1.6. Mosaicking" href="patches.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            torchmfbd
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../userguide.html">1. User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">1.1. Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deconvolution.html">1.2. Spatially invariant deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deconvolutionSV.html">1.3. Spatially variant deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diversity.html">1.4. Phase diversity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">1.5. Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patches.html">1.6. Mosaicking</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.7. Destretching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#alignment">1.8. Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regularization.html">1.9. Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movie.html">1.10. Movie</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">2. API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../disclaimer.html">3. Disclaimer</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">torchmfbd</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../userguide.html"><span class="section-number">1. </span>User guide</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">1.7. </span>Destretching</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/userguide/destretch.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="destretching">
+<span id="configuration"></span><h1><span class="section-number">1.7. </span>Destretching<a class="headerlink" href="#destretching" title="Link to this heading">¶</a></h1>
+<p>A burst of images affected by differential seeing in the field-of-view can be prealigned using the <code class="docutils literal notranslate"><span class="pre">torchmfbd.destretch</span></code> function.
+The function uses a grid of control points to warp the images to a reference frame. The function returns the warped images and the transformation tensor.
+The same destretching is applied to all objects in the burst. The destretching is performed by computing the optical flow for all frames
+in the field-of-view to align the frames to a reference frame. To this end, it uses the correlation between the reference frame and the warped frames
+as defined in “Parametric Image Alignment Using Enhanced Correlation Coefficient Maximization” by Georgios D. Evangelidis and Emmanouil Z. Psarakis.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">frames</span></code> is a tensor of shape <code class="docutils literal notranslate"><span class="pre">(n_seq,</span> <span class="pre">n_objects,</span> <span class="pre">n_frames,</span> <span class="pre">n_x,</span> <span class="pre">n_y)</span></code>, the destretching is performed in the <code class="docutils literal notranslate"><span class="pre">frames</span></code> axis, using
+a frame as reference:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">warped</span><span class="p">,</span> <span class="n">opt_flow</span> <span class="o">=</span> <span class="n">torchmfbd</span><span class="o">.</span><span class="n">destretch</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span>
+          <span class="n">ngrid</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+          <span class="n">lr</span><span class="o">=</span><span class="mf">0.50</span><span class="p">,</span>
+          <span class="n">reference_frame</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+          <span class="n">border</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+          <span class="n">n_iterations</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+          <span class="n">lambda_tt</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+          <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;bilinear&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The options of the function are:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">ngrid</span></code>: int, optional</dt><dd><p>Number of control points in the x and y directions. Default is 32.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">lr</span></code>: float, optional</dt><dd><p>Learning rate for the optimization. The optimization is done via an Adam optimizer. Default is 0.50.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">reference_frame</span></code>: int, optional</dt><dd><p>Index of the reference frame. Default is 0.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">border</span></code>: int, optional</dt><dd><p>Border of the images to be ignored. This can be used to avoid apodization, if done in advance, or to remove the effect of boundary effects in the camera. Default is 6.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">n_iterations</span></code>: int, optional</dt><dd><p>Number of iterations for the optimization. Default is 200.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">lambda_tt</span></code>: float, optional</dt><dd><p>Regularization parameter for the transformation tensor. The regularization is <span class="math notranslate nohighlight">\(\lambda |\nabla_x \mathbf{v} + \nabla_y \mathbf{v}|^2\)</span>, the L2 norm of the gradient of the horizontal and vertical optical flow. Default is 0.01.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">mode</span></code>: str, optional</dt><dd><p>Interpolation mode for the warping. Default is ‘bilinear’ (Options are ‘bilinear’ or ‘nearest’).</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The previous function returns the warped frames and the optical flow. Once computed, the optical flow
+can be applied to an other observed frames. For instance, one can compute the warp using the wideband
+images and apply the same warp to the narrowband images. This can be done using the following function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">warped_NB</span> <span class="o">=</span> <span class="n">torchmfbd</span><span class="o">.</span><span class="n">apply_destretch</span><span class="p">(</span><span class="n">frames_NB</span><span class="p">,</span> <span class="n">opt_flow</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;bilinear&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="alignment">
+<h1><span class="section-number">1.8. </span>Alignment<a class="headerlink" href="#alignment" title="Link to this heading">¶</a></h1>
+<p>A simpler version of the destretching is available using the <code class="docutils literal notranslate"><span class="pre">torchmfbd.align</span></code> function. This function infers the affine
+transformation between the reference frame and the other frames. The function returns the warped images and the transformation tensor.
+The input frames are assumed to be of shape <code class="docutils literal notranslate"><span class="pre">(n_frames,</span> <span class="pre">n_x,</span> <span class="pre">n_y)</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">warped</span><span class="p">,</span> <span class="n">affine_matrix</span> <span class="o">=</span> <span class="n">torchmfbd</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span>
+            <span class="n">lr</span><span class="o">=</span><span class="mf">0.0050</span><span class="p">,</span>
+            <span class="n">border</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">n_iterations</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Again, the affine transformation can be applied to other frames using the <code class="docutils literal notranslate"><span class="pre">torchmfbd.apply_align</span></code> function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">warped2</span> <span class="o">=</span> <span class="n">torchmfbd</span><span class="o">.</span><span class="n">apply_align</span><span class="p">(</span><span class="n">frames2</span><span class="p">,</span> <span class="n">affine_matrix</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;bilinear&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="patches.html" class="btn btn-neutral float-left" title="1.6. Mosaicking" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="regularization.html" class="btn btn-neutral float-right" title="1.9. Regularization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Andres Asensio Ramos.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

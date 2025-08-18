@@ -1,0 +1,180 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1. User guide &mdash; torchmfbd 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="1.1. Installation" href="userguide/installation.html" />
+    <link rel="prev" title="torchmfbd v0.1" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            torchmfbd
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. User guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="userguide/installation.html">1.1. Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/deconvolution.html">1.2. Spatially invariant deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/deconvolutionSV.html">1.3. Spatially variant deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/diversity.html">1.4. Phase diversity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/config.html">1.5. Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/patches.html">1.6. Mosaicking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/destretch.html">1.7. Destretching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/destretch.html#alignment">1.8. Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/regularization.html">1.9. Regularization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/movie.html">1.10. Movie</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">2. API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="disclaimer.html">3. Disclaimer</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">torchmfbd</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">1. </span>User guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/userguide.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="user-guide">
+<span id="preparation"></span><h1><span class="section-number">1. </span>User guide<a class="headerlink" href="#user-guide" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="userguide/installation.html">1.1. Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="userguide/installation.html#package-managers">1.1.1. Package managers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/installation.html#from-source">1.1.2. From source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/installation.html#requirements">1.1.3. Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/deconvolution.html">1.2. Spatially invariant deconvolution</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="userguide/deconvolution.html#introduction">1.2.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/deconvolution.html#example">1.2.2. Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/deconvolution.html#output">1.2.3. Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/deconvolution.html#modifying-filter">1.2.4. Modifying filter</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/deconvolutionSV.html">1.3. Spatially variant deconvolution</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="userguide/deconvolutionSV.html#introduction">1.3.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/deconvolutionSV.html#computing-the-basis">1.3.2. Computing the basis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/deconvolutionSV.html#example">1.3.3. Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/deconvolutionSV.html#output">1.3.4. Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/diversity.html">1.4. Phase diversity</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="userguide/diversity.html#introduction">1.4.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/diversity.html#example">1.4.2. Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/config.html">1.5. Configuration file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="userguide/config.html#spatially-invariant">1.5.1. Spatially invariant</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#telescope">1.5.1.1. telescope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#images">1.5.1.2. images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#objects">1.5.1.3. objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#optimization">1.5.1.4. optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#regularization">1.5.1.5. regularization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#psf">1.5.1.6. psf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#initialization">1.5.1.7. initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#annealing">1.5.1.8. annealing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="userguide/config.html#spatially-variant">1.5.2. Spatially variant</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#id3">1.5.2.1. telescope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#id4">1.5.2.2. images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#id5">1.5.2.3. objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#id6">1.5.2.4. optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#id7">1.5.2.5. regularization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#id8">1.5.2.6. psf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#id9">1.5.2.7. initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="userguide/config.html#id10">1.5.2.8. annealing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/patches.html">1.6. Mosaicking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/destretch.html">1.7. Destretching</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/destretch.html#alignment">1.8. Alignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/regularization.html">1.9. Regularization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide/movie.html">1.10. Movie</a></li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="torchmfbd v0.1" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="userguide/installation.html" class="btn btn-neutral float-right" title="1.1. Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Andres Asensio Ramos.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

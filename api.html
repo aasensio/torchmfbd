@@ -1,0 +1,1052 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2. API &mdash; torchmfbd 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="3. Disclaimer" href="disclaimer.html" />
+    <link rel="prev" title="1.10. Movie" href="userguide/movie.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            torchmfbd
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="userguide.html">1. User guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2. API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-torchmfbd.patchify4D">2.1. Patchify</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.patchify4D.Patchify4D"><code class="docutils literal notranslate"><span class="pre">Patchify4D</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.patchify4D.Patchify4D.patchify"><code class="docutils literal notranslate"><span class="pre">Patchify4D.patchify()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.patchify4D.Patchify4D.unpatchify"><code class="docutils literal notranslate"><span class="pre">Patchify4D.unpatchify()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-torchmfbd.destretch">2.2. Destretch</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.destretch.align"><code class="docutils literal notranslate"><span class="pre">align()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.destretch.apply_align"><code class="docutils literal notranslate"><span class="pre">apply_align()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.destretch.apply_destretch"><code class="docutils literal notranslate"><span class="pre">apply_destretch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.destretch.destretch"><code class="docutils literal notranslate"><span class="pre">destretch()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-torchmfbd.nmf">2.3. Basis generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.nmf.Basis"><code class="docutils literal notranslate"><span class="pre">Basis</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.nmf.Basis.compute"><code class="docutils literal notranslate"><span class="pre">Basis.compute()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-torchmfbd.movie">2.4. Movie generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.movie.gen_movie"><code class="docutils literal notranslate"><span class="pre">gen_movie()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-torchmfbd.deconvolution">2.5. Deconvolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution"><code class="docutils literal notranslate"><span class="pre">Deconvolution</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.add_external_regularizations"><code class="docutils literal notranslate"><span class="pre">Deconvolution.add_external_regularizations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.add_frames"><code class="docutils literal notranslate"><span class="pre">Deconvolution.add_frames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.combine_frames"><code class="docutils literal notranslate"><span class="pre">Deconvolution.combine_frames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.compute_annealing"><code class="docutils literal notranslate"><span class="pre">Deconvolution.compute_annealing()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.compute_diffraction_masks"><code class="docutils literal notranslate"><span class="pre">Deconvolution.compute_diffraction_masks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.compute_object"><code class="docutils literal notranslate"><span class="pre">Deconvolution.compute_object()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.compute_psf_diffraction"><code class="docutils literal notranslate"><span class="pre">Deconvolution.compute_psf_diffraction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.compute_psfs"><code class="docutils literal notranslate"><span class="pre">Deconvolution.compute_psfs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.compute_psfs_nmf"><code class="docutils literal notranslate"><span class="pre">Deconvolution.compute_psfs_nmf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.deconvolve"><code class="docutils literal notranslate"><span class="pre">Deconvolution.deconvolve()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.define_basis"><code class="docutils literal notranslate"><span class="pre">Deconvolution.define_basis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.fft_filter"><code class="docutils literal notranslate"><span class="pre">Deconvolution.fft_filter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.find_basis_wavefront"><code class="docutils literal notranslate"><span class="pre">Deconvolution.find_basis_wavefront()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.get_defocus_basis"><code class="docutils literal notranslate"><span class="pre">Deconvolution.get_defocus_basis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.lofdahl_scharmer_filter"><code class="docutils literal notranslate"><span class="pre">Deconvolution.lofdahl_scharmer_filter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.precalculate_zernike"><code class="docutils literal notranslate"><span class="pre">Deconvolution.precalculate_zernike()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.read_config_file"><code class="docutils literal notranslate"><span class="pre">Deconvolution.read_config_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.remove_frames"><code class="docutils literal notranslate"><span class="pre">Deconvolution.remove_frames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.set_regularizations"><code class="docutils literal notranslate"><span class="pre">Deconvolution.set_regularizations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.update_object"><code class="docutils literal notranslate"><span class="pre">Deconvolution.update_object()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.write"><code class="docutils literal notranslate"><span class="pre">Deconvolution.write()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-torchmfbd.deconvolution_sv">2.6. Deconvolution SV</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.deconvolution_sv.DeconvolutionSV"><code class="docutils literal notranslate"><span class="pre">DeconvolutionSV</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.active_annealing"><code class="docutils literal notranslate"><span class="pre">DeconvolutionSV.active_annealing()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.compute_syn"><code class="docutils literal notranslate"><span class="pre">DeconvolutionSV.compute_syn()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.deconvolve"><code class="docutils literal notranslate"><span class="pre">DeconvolutionSV.deconvolve()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.define_basis"><code class="docutils literal notranslate"><span class="pre">DeconvolutionSV.define_basis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.fft_filter_image"><code class="docutils literal notranslate"><span class="pre">DeconvolutionSV.fft_filter_image()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-torchmfbd.util">2.7. Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.util.aperture"><code class="docutils literal notranslate"><span class="pre">aperture()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.util.apodize"><code class="docutils literal notranslate"><span class="pre">apodize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.util.azimuthal_power"><code class="docutils literal notranslate"><span class="pre">azimuthal_power()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#torchmfbd.util.psf_scale"><code class="docutils literal notranslate"><span class="pre">psf_scale()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="disclaimer.html">3. Disclaimer</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">torchmfbd</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">2. </span>API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api">
+<h1><span class="section-number">2. </span>API<a class="headerlink" href="#api" title="Link to this heading">¶</a></h1>
+<section id="module-torchmfbd.patchify4D">
+<span id="patchify"></span><h2><span class="section-number">2.1. </span>Patchify<a class="headerlink" href="#module-torchmfbd.patchify4D" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchmfbd.patchify4D.Patchify4D">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchmfbd.patchify4D.</span></span><span class="sig-name descname"><span class="pre">Patchify4D</span></span><a class="headerlink" href="#torchmfbd.patchify4D.Patchify4D" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.patchify4D.Patchify4D.patchify" title="torchmfbd.patchify4D.Patchify4D.patchify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">patchify</span></code></a>(x[, patch_size, stride_size, ...])</p></td>
+<td><p>Splits the input tensor into patches.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#torchmfbd.patchify4D.Patchify4D.unpatchify" title="torchmfbd.patchify4D.Patchify4D.unpatchify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unpatchify</span></code></a>(x[, apodization, weight_type, ...])</p></td>
+<td><p>Reconstructs the original image from patches. :param x: The input tensor containing image patches with shape           (n, L, f, x, y), where:           - n: number of scans           - L: number of patches           - o: number of objects           - f: number of frames (optional)           - x, y: patch dimensions :type x: torch.Tensor :param apodization: Number of pixels to apodize at the edges of the image. Default is 0. :type apodization: int, optional.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.patchify4D.Patchify4D.patchify">
+<span class="sig-name descname"><span class="pre">patchify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_coordinates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.patchify4D.Patchify4D.patchify" title="Link to this definition">¶</a></dt>
+<dd><p>Splits the input tensor into patches.
+:param x: Input tensor of shape (n_scans, n_frames, nx, ny).
+:type x: torch.Tensor
+:param patch_size: Size of each patch. Default is 64.
+:type patch_size: int, optional
+:param stride_size: Stride size for patch extraction. Default is 64.
+:type stride_size: int, optional
+:param flatten_sequences: If True, the output tensor will have shape (n_scans * n_frames, patch_size, patch_size). Default is True.
+:type flatten_sequences: bool, optional
+:param return_coordinates: If True, the function will return the coordinates of the patches. Default is False.
+:type return_coordinates: bool, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tensor containing the patches with shape (n_scans, L, n_frames, patch_size, patch_size), where L is the number of patches extracted.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.patchify4D.Patchify4D.unpatchify">
+<span class="sig-name descname"><span class="pre">unpatchify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apodization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.patchify4D.Patchify4D.unpatchify" title="Link to this definition">¶</a></dt>
+<dd><p>Reconstructs the original image from patches.
+:param x: The input tensor containing image patches with shape</p>
+<blockquote>
+<div><p>(n, L, f, x, y), where:
+- n: number of scans
+- L: number of patches
+- o: number of objects
+- f: number of frames (optional)
+- x, y: patch dimensions</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>apodization</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of pixels to apodize at the edges of the image. Default is 0.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The reconstructed image tensor with shape</dt><dd><p>(n, o, f, x, y), where:
+- n: number of scans
+- o: number of objects
+- f: number of features (optional)
+- x, y: image dimensions</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-torchmfbd.destretch">
+<span id="destretch"></span><h2><span class="section-number">2.2. </span>Destretch<a class="headerlink" href="#module-torchmfbd.destretch" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="torchmfbd.destretch.align">
+<span class="sig-prename descclassname"><span class="pre">torchmfbd.destretch.</span></span><span class="sig-name descname"><span class="pre">align</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bilinear'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.destretch.align" title="Link to this definition">¶</a></dt>
+<dd><p>Perform image alignment between two images using gradient-based optimization.
+It optimizes the affine transformation matrix to align the second frame to the first frame, which is used as reference.
+To this end, it uses the correlation between the reference frame and the warped frames
+as defined in “Parametric Image Alignment Using Enhanced Correlation Coefficient Maximization”
+by Georgios D. Evangelidis and Emmanouil Z. Psarakis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frames</strong> (<em>torch.Tensor</em>) – Input tensor of shape (n_f, n_x, n_y) representing the sequence of frames.</p></li>
+<li><p><strong>lr</strong> (<em>float</em><em>, </em><em>optional</em>) – Learning rate for the optimizer. Default is 0.01.</p></li>
+<li><p><strong>border</strong> (<em>int</em><em>, </em><em>optional</em>) – Border size to exclude from the loss computation. Default is 10.</p></li>
+<li><p><strong>n_iterations</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of optimization iterations. Default is 20.</p></li>
+<li><p><strong>mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Interpolation mode for the warping. Default is ‘bilinear’ (‘nearest’/’bilinear’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>warped (torch.Tensor): Warped frames after alignment.</p></li>
+<li><p>tt (torch.Tensor): Estimated affine matrix.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchmfbd.destretch.apply_align">
+<span class="sig-prename descclassname"><span class="pre">torchmfbd.destretch.</span></span><span class="sig-name descname"><span class="pre">apply_align</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">affine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bilinear'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.destretch.apply_align" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchmfbd.destretch.apply_destretch">
+<span class="sig-prename descclassname"><span class="pre">torchmfbd.destretch.</span></span><span class="sig-name descname"><span class="pre">apply_destretch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bilinear'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.destretch.apply_destretch" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchmfbd.destretch.destretch">
+<span class="sig-prename descclassname"><span class="pre">torchmfbd.destretch.</span></span><span class="sig-name descname"><span class="pre">destretch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngrid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_tt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bilinear'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.destretch.destretch" title="Link to this definition">¶</a></dt>
+<dd><p>Perform image destretching on a sequence of frames using gradient-based optimization.
+It optimizes the optical flow in the field-of-view to align the frames to a reference frame.
+To this end, it uses the correlation between the reference frame and the warped frames
+as defined in “Parametric Image Alignment Using Enhanced Correlation Coefficient Maximization”
+by Georgios D. Evangelidis and Emmanouil Z. Psarakis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frames</strong> (<em>torch.Tensor</em>) – Input tensor of shape (n_seq, n_o, n_f, n_x, n_y) representing the sequence of frames.</p></li>
+<li><p><strong>ngrid</strong> (<em>int</em><em>, </em><em>optional</em>) – Grid size for the tip-tilt estimation. Default is 32.</p></li>
+<li><p><strong>lr</strong> (<em>float</em><em>, </em><em>optional</em>) – Learning rate for the optimizer. Default is 0.01.</p></li>
+<li><p><strong>reference_frame</strong> (<em>int</em><em>, </em><em>optional</em>) – Index of the reference frame to which other frames are aligned. Default is 0.</p></li>
+<li><p><strong>border</strong> (<em>int</em><em>, </em><em>optional</em>) – Border size to exclude from the loss computation. Default is 10.</p></li>
+<li><p><strong>n_iterations</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of optimization iterations. Default is 20.</p></li>
+<li><p><strong>lambda_tt</strong> (<em>float</em><em>, </em><em>optional</em>) – Regularization parameter for the tip-tilt smoothness. Default is 0.1.</p></li>
+<li><p><strong>mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Interpolation mode for the warping. Default is ‘bilinear’ (‘nearest’/’bilinear’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>warped (torch.Tensor): Warped frames after destretching.</p></li>
+<li><p>tt (torch.Tensor): Estimated tip-tilt values.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-torchmfbd.nmf">
+<span id="basis-generation"></span><h2><span class="section-number">2.3. </span>Basis generation<a class="headerlink" href="#module-torchmfbd.nmf" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchmfbd.nmf.Basis">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchmfbd.nmf.</span></span><span class="sig-name descname"><span class="pre">Basis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_pixel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8542.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pix_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.059</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">250</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r0_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r0_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.nmf.Basis" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class that generates a set of Point Spread Functions (PSFs) using Kolmogorov turbulence and computes the Non-negative Matrix Factorization (NMF) of the PSFs.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.nmf.Basis.compute" title="torchmfbd.nmf.Basis.compute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute</span></code></a>([type, n, n_iter, verbose])</p></td>
+<td><p>Compute Non-negative Matrix Factorization (NMF) for a set of generated Point Spread Functions (PSFs).</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.nmf.Basis.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nmf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.nmf.Basis.compute" title="Link to this definition">¶</a></dt>
+<dd><p>Compute Non-negative Matrix Factorization (NMF) for a set of generated Point Spread Functions (PSFs).
+Parameters:
+n (int): Number of random PSFs to generate.
+n_iter (int, optional): Maximum number of iterations for the NMF algorithm. Default is 400.
+verbose (int, optional): Verbosity level of the NMF algorithm. Default is 0.
+Returns:
+None
+This function generates <cite>n</cite> random PSFs using Kolmogorov turbulence with a specified range of r0 values.
+It then computes the NMF of the reshaped PSFs and saves the resulting basis, diffraction PSF, modes, and coefficients
+to a file in the ‘basis’ directory. The filename includes the wavelength, number of modes, and r0 range.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-torchmfbd.movie">
+<span id="movie-generation"></span><h2><span class="section-number">2.4. </span>Movie generation<a class="headerlink" href="#module-torchmfbd.movie" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="torchmfbd.movie.gen_movie">
+<span class="sig-prename descclassname"><span class="pre">torchmfbd.movie.</span></span><span class="sig-name descname"><span class="pre">gen_movie</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frames2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'movie.gif'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.movie.gen_movie" title="Link to this definition">¶</a></dt>
+<dd><p>Generate an animated movie from a sequence of frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frames</strong> (<em>torch.Tensor</em>) – A tensor containing the frames to be animated.</p></li>
+<li><p><strong>frames2</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – An optional second tensor containing additional frames to be animated side-by-side. Default is None.</p></li>
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the output file. Default is ‘movie.gif’.</p></li>
+<li><p><strong>fps</strong> (<em>int</em><em>, </em><em>optional</em>) – Frames per second for the output animation. Default is 1.</p></li>
+<li><p><strong>deltat</strong> (<em>int</em><em>, </em><em>optional</em>) – Time interval between frames in milliseconds. Default is 300.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-torchmfbd.deconvolution">
+<span id="deconvolution"></span><h2><span class="section-number">2.5. </span>Deconvolution<a class="headerlink" href="#module-torchmfbd.deconvolution" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchmfbd.deconvolution.</span></span><span class="sig-name descname"><span class="pre">Deconvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_piston</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.add_external_regularizations" title="torchmfbd.deconvolution.Deconvolution.add_external_regularizations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_external_regularizations</span></code></a>(...)</p></td>
+<td><p>Adds external regularizations to the model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.add_frames" title="torchmfbd.deconvolution.Deconvolution.add_frames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_frames</span></code></a>(frames[, sigma, id_object, ...])</p></td>
+<td><p>Add frames to the deconvolution object. Parameters: ----------- frames : torch.Tensor     The input frames to be deconvolved (n_sequences, n_objects, n_frames, nx, ny). sigma : torch.Tensor     The noise standard deviation for each object. id_object : int, optional     The object index to which the frames belong (default is 0). diversity : torch.Tensor, optional     The diversity coefficient to use for the deconvolution (n_sequences, n_objects). If None, the diversity coefficient is set to zero for all objects. Returns: -------- None.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.combine_frames" title="torchmfbd.deconvolution.Deconvolution.combine_frames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_frames</span></code></a>()</p></td>
+<td><p>Combine the frames from all objects and sequences into a single tensor.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.compute_annealing" title="torchmfbd.deconvolution.Deconvolution.compute_annealing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_annealing</span></code></a>(modes, n_iterations)</p></td>
+<td><p>Annealing function We start with 2 modes and end with all modes but we give steps of the number of Zernike modes for each n</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.compute_diffraction_masks" title="torchmfbd.deconvolution.Deconvolution.compute_diffraction_masks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_diffraction_masks</span></code></a>()</p></td>
+<td><p>Compute the diffraction masks for the given dimensions and store them as class attributes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.compute_object" title="torchmfbd.deconvolution.Deconvolution.compute_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_object</span></code></a>(images_ft, psf_ft, sigma, plane)</p></td>
+<td><p>Compute the object in Fourier space using the specified filter. Parameters: -------- images_ft (torch.Tensor):     The Fourier transform of the observed images. psf_ft (torch.Tensor):     The Fourier transform of the point spread function (PSF). type_filter (str, optional):     The type of filter to use ('tophat'/'scharmer'). Default is 'tophat'. Returns: -------- torch.Tensor: The computed object in Fourier space.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.compute_psf_diffraction" title="torchmfbd.deconvolution.Deconvolution.compute_psf_diffraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_psf_diffraction</span></code></a>()</p></td>
+<td><p>Compute the Point Spread Functions (PSFs) from diffraction</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.compute_psfs" title="torchmfbd.deconvolution.Deconvolution.compute_psfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_psfs</span></code></a>(modes, diversity)</p></td>
+<td><p>Compute the Point Spread Functions (PSFs) from the given modes. Parameters: modes (torch.Tensor): A tensor of shape (batch_size, num_modes, height, width) representing the modes. Returns: tuple: A tuple containing:     - wavefront (torch.Tensor): The computed wavefronts from the estimated modes. - psf_norm (torch.Tensor): The normalized PSFs. - psf_ft (torch.Tensor): The FFT of the normalized PSFs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.compute_psfs_nmf" title="torchmfbd.deconvolution.Deconvolution.compute_psfs_nmf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_psfs_nmf</span></code></a>(modes)</p></td>
+<td><p>Compute the Point Spread Functions (PSFs) from the given modes. Parameters: modes (torch.Tensor): A tensor of shape (batch_size, num_modes, height, width) representing the modes. Returns: tuple: A tuple containing:     - wavefront (torch.Tensor): The computed wavefronts from the estimated modes. - psf_norm (torch.Tensor): The normalized PSFs. - psf_ft (torch.Tensor): The FFT of the normalized PSFs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.deconvolve" title="torchmfbd.deconvolution.Deconvolution.deconvolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deconvolve</span></code></a>([simultaneous_sequences, ...])</p></td>
+<td><p>Perform deconvolution on a set of frames using specified parameters. Parameters: ----------- frames : torch.Tensor     The input frames to be deconvolved (n_sequences, n_objects, n_frames, nx, ny). sigma : torch.Tensor     The noise standard deviation for each object. simultaneous_sequences : int, optional     Number of sequences to be processed simultaneously (default is 1). infer_object : bool, optional     Whether to infer the object during optimization (default is False). optimizer : str, optional     The optimizer to use ('adam' for Adam, 'lbfgs' for LBFGS) (default is 'adam'). obj_in : torch.Tensor, optional     Initial object to use for deconvolution (default is None). modes_in : torch.Tensor, optional     Initial modes to use for deconvolution (default is None). annealing : bool or str, optional     Annealing schedule to use ('linear', 'sigmoid', 'none') (default is 'linear''). n_iterations : int, optional     Number of iterations for the optimization (default is 20). Returns: -------- None.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.fft_filter" title="torchmfbd.deconvolution.Deconvolution.fft_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fft_filter</span></code></a>(image_ft)</p></td>
+<td><p>Applies a Fourier filter to the input image in the frequency domain.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.get_defocus_basis" title="torchmfbd.deconvolution.Deconvolution.get_defocus_basis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_defocus_basis</span></code></a>(overfill)</p></td>
+<td><p>Precalculate Zernike polynomials for a given overfill factor. This function computes the Zernike polynomials up to <cite>self.n_modes</cite> and returns them in a 3D numpy array. The Zernike polynomials are calculated over a grid defined by <cite>self.npix</cite> and scaled by the <cite>overfill</cite> factor. Parameters: ----------- overfill : float     The overfill factor used to scale the radial coordinate <cite>rho</cite>. Returns: -------- Z : numpy.ndarray     A 3D array of shape (self.n_modes, self.npix, self.npix) containing     the precalculated Zernike polynomials. Each slice <cite>Z[mode, :, :]</cite>     corresponds to a Zernike polynomial mode.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.lofdahl_scharmer_filter" title="torchmfbd.deconvolution.Deconvolution.lofdahl_scharmer_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lofdahl_scharmer_filter</span></code></a>(Sconj_S, Sconj_I, sigma)</p></td>
+<td><p>Applies the Löfdahl-Scharmer filter to the given input tensors. Parameters: ----------- Sconj_S : torch.Tensor     The conjugate of the Fourier transform of the observed image. Sconj_I : torch.Tensor     The conjugate of the Fourier transform of the ideal image. Returns: -------- torch.Tensor     A tensor representing the mask after applying the Löfdahl-Scharmer filter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.precalculate_zernike" title="torchmfbd.deconvolution.Deconvolution.precalculate_zernike"><code class="xref py py-obj docutils literal notranslate"><span class="pre">precalculate_zernike</span></code></a>(overfill)</p></td>
+<td><p>Precalculate Zernike polynomials for a given overfill factor. This function computes the Zernike polynomials up to <cite>self.n_modes</cite> and returns them in a 3D numpy array. The Zernike polynomials are calculated over a grid defined by <cite>self.npix</cite> and scaled by the <cite>overfill</cite> factor. Parameters: ----------- overfill : float     The overfill factor used to scale the radial coordinate <cite>rho</cite>. Returns: -------- Z : numpy.ndarray     A 3D array of shape (self.n_modes, self.npix, self.npix) containing     the precalculated Zernike polynomials. Each slice <cite>Z[mode, :, :]</cite>     corresponds to a Zernike polynomial mode.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.read_config_file" title="torchmfbd.deconvolution.Deconvolution.read_config_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_config_file</span></code></a>(filename)</p></td>
+<td><p>Read a configuration file in YAML format.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.remove_frames" title="torchmfbd.deconvolution.Deconvolution.remove_frames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_frames</span></code></a>()</p></td>
+<td><p>Add frames to the deconvolution object. Parameters: ----------- frames : torch.Tensor     The input frames to be deconvolved (n_sequences, n_objects, n_frames, nx, ny). sigma : torch.Tensor     The noise standard deviation for each object. id_object : int, optional     The object index to which the frames belong (default is 0). diversity : torch.Tensor, optional     The diversity coefficient to use for the deconvolution (n_sequences, n_objects). If None, the diversity coefficient is set to zero for all objects. Returns: -------- None.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.update_object" title="torchmfbd.deconvolution.Deconvolution.update_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_object</span></code></a>([cutoffs])</p></td>
+<td><p>Update the object estimate with new cutoffs in the Fourier filter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution.write" title="torchmfbd.deconvolution.Deconvolution.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(filename[, extra])</p></td>
+<td><p>Write the deconvolved object to a file. Parameters: ----------- filename : str     The name of the file to which the object will be written. Returns: -------- None.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>define_basis</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>find_basis_wavefront</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>set_regularizations</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.add_external_regularizations">
+<span class="sig-name descname"><span class="pre">add_external_regularizations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">external_regularization</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.add_external_regularizations" title="Link to this definition">¶</a></dt>
+<dd><p>Adds external regularizations to the model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.add_frames">
+<span class="sig-name descname"><span class="pre">add_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_object</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_diversity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diversity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">XY</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.add_frames" title="Link to this definition">¶</a></dt>
+<dd><p>Add frames to the deconvolution object.
+Parameters:
+———–
+frames : torch.Tensor</p>
+<blockquote>
+<div><p>The input frames to be deconvolved (n_sequences, n_objects, n_frames, nx, ny).</p>
+</div></blockquote>
+<dl class="simple">
+<dt>sigma<span class="classifier">torch.Tensor</span></dt><dd><p>The noise standard deviation for each object.</p>
+</dd>
+<dt>id_object<span class="classifier">int, optional</span></dt><dd><p>The object index to which the frames belong (default is 0).</p>
+</dd>
+<dt>diversity<span class="classifier">torch.Tensor, optional</span></dt><dd><p>The diversity coefficient to use for the deconvolution (n_sequences, n_objects).
+If None, the diversity coefficient is set to zero for all objects.</p>
+</dd>
+</dl>
+<section id="returns">
+<h3><span class="section-number">2. </span>Returns:<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h3>
+<p>None</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.combine_frames">
+<span class="sig-name descname"><span class="pre">combine_frames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.combine_frames" title="Link to this definition">¶</a></dt>
+<dd><p>Combine the frames from all objects and sequences into a single tensor.
+Observations with different diversity channels are concatenated along the frame axis.
+Returns:
+——–
+torch.Tensor: A tensor of shape (n_sequences, n_objects, n_frames, nx, ny) containing the combined frames.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.compute_annealing">
+<span class="sig-name descname"><span class="pre">compute_annealing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iterations</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.compute_annealing" title="Link to this definition">¶</a></dt>
+<dd><p>Annealing function
+We start with 2 modes and end with all modes but we give steps of the number of
+Zernike modes for each n</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>annealing</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>n_iterations</strong> (<em>_type_</em>) – _description_</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.compute_diffraction_masks">
+<span class="sig-name descname"><span class="pre">compute_diffraction_masks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.compute_diffraction_masks" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the diffraction masks for the given dimensions and store them as class attributes.
+:param n_x: The number of pixels in the x-dimension.
+:type n_x: int
+:param n_y: The number of pixels in the y-dimension.
+:type n_y: int</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.mask_diffraction">
+<span class="sig-name descname"><span class="pre">mask_diffraction</span></span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.mask_diffraction" title="Link to this definition">¶</a></dt>
+<dd><p>A 3D array of shape (n_o, n_x, n_y) containing the diffraction masks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.mask_diffraction_th">
+<span class="sig-name descname"><span class="pre">mask_diffraction_th</span></span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.mask_diffraction_th" title="Link to this definition">¶</a></dt>
+<dd><p>A tensor containing the diffraction masks, converted to float32 and moved to the specified device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.mask_diffraction_shift">
+<span class="sig-name descname"><span class="pre">mask_diffraction_shift</span></span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.mask_diffraction_shift" title="Link to this definition">¶</a></dt>
+<dd><p>A 3D array of shape (n_o, n_x, n_y) containing the FFT-shifted diffraction masks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.compute_object">
+<span class="sig-name descname"><span class="pre">compute_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images_ft</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psf_ft</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tophat'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.compute_object" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the object in Fourier space using the specified filter.
+Parameters:
+——–
+images_ft (torch.Tensor):</p>
+<blockquote>
+<div><p>The Fourier transform of the observed images.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>psf_ft (torch.Tensor):</dt><dd><p>The Fourier transform of the point spread function (PSF).</p>
+</dd>
+<dt>type_filter (str, optional):</dt><dd><p>The type of filter to use (‘tophat’/’scharmer’). Default is ‘tophat’.</p>
+</dd>
+</dl>
+<section id="id1">
+<h3><span class="section-number">2. </span>Returns:<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p>torch.Tensor: The computed object in Fourier space.</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.compute_psf_diffraction">
+<span class="sig-name descname"><span class="pre">compute_psf_diffraction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.compute_psf_diffraction" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the Point Spread Functions (PSFs) from diffraction</p>
+<p>Returns:
+tuple: A tuple containing:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>psf_norm (torch.Tensor): The normalized PSFs.</p></li>
+<li><p>psf_ft (torch.Tensor): The FFT of the normalized PSFs.</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.compute_psfs">
+<span class="sig-name descname"><span class="pre">compute_psfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diversity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.compute_psfs" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the Point Spread Functions (PSFs) from the given modes.
+Parameters:
+modes (torch.Tensor): A tensor of shape (batch_size, num_modes, height, width) representing the modes.
+Returns:
+tuple: A tuple containing:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>wavefront (torch.Tensor): The computed wavefronts from the estimated modes.</p></li>
+<li><p>psf_norm (torch.Tensor): The normalized PSFs.</p></li>
+<li><p>psf_ft (torch.Tensor): The FFT of the normalized PSFs.</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.compute_psfs_nmf">
+<span class="sig-name descname"><span class="pre">compute_psfs_nmf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.compute_psfs_nmf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the Point Spread Functions (PSFs) from the given modes.
+Parameters:
+modes (torch.Tensor): A tensor of shape (batch_size, num_modes, height, width) representing the modes.
+Returns:
+tuple: A tuple containing:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>wavefront (torch.Tensor): The computed wavefronts from the estimated modes.</p></li>
+<li><p>psf_norm (torch.Tensor): The normalized PSFs.</p></li>
+<li><p>psf_ft (torch.Tensor): The FFT of the normalized PSFs.</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.deconvolve">
+<span class="sig-name descname"><span class="pre">deconvolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simultaneous_sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_object</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.deconvolve" title="Link to this definition">¶</a></dt>
+<dd><p>Perform deconvolution on a set of frames using specified parameters.
+Parameters:
+———–
+frames : torch.Tensor</p>
+<blockquote>
+<div><p>The input frames to be deconvolved (n_sequences, n_objects, n_frames, nx, ny).</p>
+</div></blockquote>
+<dl class="simple">
+<dt>sigma<span class="classifier">torch.Tensor</span></dt><dd><p>The noise standard deviation for each object.</p>
+</dd>
+<dt>simultaneous_sequences<span class="classifier">int, optional</span></dt><dd><p>Number of sequences to be processed simultaneously (default is 1).</p>
+</dd>
+<dt>infer_object<span class="classifier">bool, optional</span></dt><dd><p>Whether to infer the object during optimization (default is False).</p>
+</dd>
+<dt>optimizer<span class="classifier">str, optional</span></dt><dd><p>The optimizer to use (‘adam’ for Adam, ‘lbfgs’ for LBFGS) (default is ‘adam’).</p>
+</dd>
+<dt>obj_in<span class="classifier">torch.Tensor, optional</span></dt><dd><p>Initial object to use for deconvolution (default is None).</p>
+</dd>
+<dt>modes_in<span class="classifier">torch.Tensor, optional</span></dt><dd><p>Initial modes to use for deconvolution (default is None).</p>
+</dd>
+<dt>annealing<span class="classifier">bool or str, optional</span></dt><dd><p>Annealing schedule to use (‘linear’, ‘sigmoid’, ‘none’) (default is ‘linear’’).</p>
+</dd>
+<dt>n_iterations<span class="classifier">int, optional</span></dt><dd><p>Number of iterations for the optimization (default is 20).</p>
+</dd>
+</dl>
+<section id="id2">
+<h3><span class="section-number">2. </span>Returns:<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>None</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.define_basis">
+<span class="sig-name descname"><span class="pre">define_basis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.define_basis" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.fft_filter">
+<span class="sig-name descname"><span class="pre">fft_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_ft</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.fft_filter" title="Link to this definition">¶</a></dt>
+<dd><p>Applies a Fourier filter to the input image in the frequency domain.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.find_basis_wavefront">
+<span class="sig-name descname"><span class="pre">find_basis_wavefront</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.find_basis_wavefront" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.get_defocus_basis">
+<span class="sig-name descname"><span class="pre">get_defocus_basis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overfill</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.get_defocus_basis" title="Link to this definition">¶</a></dt>
+<dd><p>Precalculate Zernike polynomials for a given overfill factor.
+This function computes the Zernike polynomials up to <cite>self.n_modes</cite> and
+returns them in a 3D numpy array. The Zernike polynomials are calculated
+over a grid defined by <cite>self.npix</cite> and scaled by the <cite>overfill</cite> factor.
+Parameters:
+———–
+overfill : float</p>
+<blockquote>
+<div><p>The overfill factor used to scale the radial coordinate <cite>rho</cite>.</p>
+</div></blockquote>
+<section id="id3">
+<h3><span class="section-number">2. </span>Returns:<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt>Z<span class="classifier">numpy.ndarray</span></dt><dd><p>A 3D array of shape (self.n_modes, self.npix, self.npix) containing
+the precalculated Zernike polynomials. Each slice <cite>Z[mode, :, :]</cite>
+corresponds to a Zernike polynomial mode.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.lofdahl_scharmer_filter">
+<span class="sig-name descname"><span class="pre">lofdahl_scharmer_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Sconj_S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Sconj_I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.lofdahl_scharmer_filter" title="Link to this definition">¶</a></dt>
+<dd><p>Applies the Löfdahl-Scharmer filter to the given input tensors.
+Parameters:
+———–
+Sconj_S : torch.Tensor</p>
+<blockquote>
+<div><p>The conjugate of the Fourier transform of the observed image.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Sconj_I<span class="classifier">torch.Tensor</span></dt><dd><p>The conjugate of the Fourier transform of the ideal image.</p>
+</dd>
+</dl>
+<section id="id4">
+<h3><span class="section-number">2. </span>Returns:<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt>torch.Tensor</dt><dd><p>A tensor representing the mask after applying the Löfdahl-Scharmer filter.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.precalculate_zernike">
+<span class="sig-name descname"><span class="pre">precalculate_zernike</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overfill</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.precalculate_zernike" title="Link to this definition">¶</a></dt>
+<dd><p>Precalculate Zernike polynomials for a given overfill factor.
+This function computes the Zernike polynomials up to <cite>self.n_modes</cite> and
+returns them in a 3D numpy array. The Zernike polynomials are calculated
+over a grid defined by <cite>self.npix</cite> and scaled by the <cite>overfill</cite> factor.
+Parameters:
+———–
+overfill : float</p>
+<blockquote>
+<div><p>The overfill factor used to scale the radial coordinate <cite>rho</cite>.</p>
+</div></blockquote>
+<section id="id5">
+<h3><span class="section-number">2. </span>Returns:<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt>Z<span class="classifier">numpy.ndarray</span></dt><dd><p>A 3D array of shape (self.n_modes, self.npix, self.npix) containing
+the precalculated Zernike polynomials. Each slice <cite>Z[mode, :, :]</cite>
+corresponds to a Zernike polynomial mode.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.read_config_file">
+<span class="sig-name descname"><span class="pre">read_config_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.read_config_file" title="Link to this definition">¶</a></dt>
+<dd><p>Read a configuration file in YAML format.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.remove_frames">
+<span class="sig-name descname"><span class="pre">remove_frames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.remove_frames" title="Link to this definition">¶</a></dt>
+<dd><p>Add frames to the deconvolution object.
+Parameters:
+———–
+frames : torch.Tensor</p>
+<blockquote>
+<div><p>The input frames to be deconvolved (n_sequences, n_objects, n_frames, nx, ny).</p>
+</div></blockquote>
+<dl class="simple">
+<dt>sigma<span class="classifier">torch.Tensor</span></dt><dd><p>The noise standard deviation for each object.</p>
+</dd>
+<dt>id_object<span class="classifier">int, optional</span></dt><dd><p>The object index to which the frames belong (default is 0).</p>
+</dd>
+<dt>diversity<span class="classifier">torch.Tensor, optional</span></dt><dd><p>The diversity coefficient to use for the deconvolution (n_sequences, n_objects).
+If None, the diversity coefficient is set to zero for all objects.</p>
+</dd>
+</dl>
+<section id="id6">
+<h3><span class="section-number">2. </span>Returns:<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<p>None</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.set_regularizations">
+<span class="sig-name descname"><span class="pre">set_regularizations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.set_regularizations" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.update_object">
+<span class="sig-name descname"><span class="pre">update_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cutoffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.update_object" title="Link to this definition">¶</a></dt>
+<dd><p>Update the object estimate with new cutoffs in the Fourier filter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cutoffs</strong> (<em>list</em>) – A list containing the new cutoffs for each object. Each cutoff contains two numbers, indicating the
+lower and upper frequencies for the transition.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution.Deconvolution.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution.Deconvolution.write" title="Link to this definition">¶</a></dt>
+<dd><p>Write the deconvolved object to a file.
+Parameters:
+———–
+filename : str</p>
+<blockquote>
+<div><p>The name of the file to which the object will be written.</p>
+</div></blockquote>
+<section id="id7">
+<h3><span class="section-number">2. </span>Returns:<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<p>None</p>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-torchmfbd.deconvolution_sv">
+<span id="deconvolution-sv"></span><h2><span class="section-number">2.6. </span>Deconvolution SV<a class="headerlink" href="#module-torchmfbd.deconvolution_sv" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution_sv.DeconvolutionSV">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">torchmfbd.deconvolution_sv.</span></span><span class="sig-name descname"><span class="pre">DeconvolutionSV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution_sv.DeconvolutionSV" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#torchmfbd.deconvolution.Deconvolution" title="torchmfbd.deconvolution.Deconvolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">Deconvolution</span></code></a></p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_external_regularizations</span></code>(...)</p></td>
+<td><p>Adds external regularizations to the model.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_frames</span></code>(frames[, sigma, id_object, ...])</p></td>
+<td><p>Add frames to the deconvolution object. Parameters: ----------- frames : torch.Tensor     The input frames to be deconvolved (n_sequences, n_objects, n_frames, nx, ny). sigma : torch.Tensor     The noise standard deviation for each object. id_object : int, optional     The object index to which the frames belong (default is 0). diversity : torch.Tensor, optional     The diversity coefficient to use for the deconvolution (n_sequences, n_objects). If None, the diversity coefficient is set to zero for all objects. Returns: -------- None.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_frames</span></code>()</p></td>
+<td><p>Combine the frames from all objects and sequences into a single tensor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_annealing</span></code>(modes, n_iterations)</p></td>
+<td><p>Annealing function We start with 2 modes and end with all modes but we give steps of the number of Zernike modes for each n</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_diffraction_masks</span></code>()</p></td>
+<td><p>Compute the diffraction masks for the given dimensions and store them as class attributes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_object</span></code>(images_ft, psf_ft, sigma, plane)</p></td>
+<td><p>Compute the object in Fourier space using the specified filter. Parameters: -------- images_ft (torch.Tensor):     The Fourier transform of the observed images. psf_ft (torch.Tensor):     The Fourier transform of the point spread function (PSF). type_filter (str, optional):     The type of filter to use ('tophat'/'scharmer'). Default is 'tophat'. Returns: -------- torch.Tensor: The computed object in Fourier space.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_psf_diffraction</span></code>()</p></td>
+<td><p>Compute the Point Spread Functions (PSFs) from diffraction</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_psfs</span></code>(modes, diversity)</p></td>
+<td><p>Compute the Point Spread Functions (PSFs) from the given modes. Parameters: modes (torch.Tensor): A tensor of shape (batch_size, num_modes, height, width) representing the modes. Returns: tuple: A tuple containing:     - wavefront (torch.Tensor): The computed wavefronts from the estimated modes. - psf_norm (torch.Tensor): The normalized PSFs. - psf_ft (torch.Tensor): The FFT of the normalized PSFs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_psfs_nmf</span></code>(modes)</p></td>
+<td><p>Compute the Point Spread Functions (PSFs) from the given modes. Parameters: modes (torch.Tensor): A tensor of shape (batch_size, num_modes, height, width) representing the modes. Returns: tuple: A tuple containing:     - wavefront (torch.Tensor): The computed wavefronts from the estimated modes. - psf_norm (torch.Tensor): The normalized PSFs. - psf_ft (torch.Tensor): The FFT of the normalized PSFs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.compute_syn" title="torchmfbd.deconvolution_sv.DeconvolutionSV.compute_syn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_syn</span></code></a>(im, obj_filtered, tiptilt_infer, ...)</p></td>
+<td><p>Compute the synthetic image based on the inferred object, tip-tilt, and modes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.deconvolve" title="torchmfbd.deconvolution_sv.DeconvolutionSV.deconvolve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deconvolve</span></code></a>([simultaneous_sequences, ...])</p></td>
+<td><p>Perform spatially variant deconvolution on a set of frames.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fft_filter</span></code>(image_ft)</p></td>
+<td><p>Applies a Fourier filter to the input image in the frequency domain.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.fft_filter_image" title="torchmfbd.deconvolution_sv.DeconvolutionSV.fft_filter_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fft_filter_image</span></code></a>(obj, mask_diffraction)</p></td>
+<td><p>Filter the object in Fourier space It simply multiplies the FFT of the object (properly apodized) by the Fourier filter and returns the inverse FFT of the result.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_defocus_basis</span></code>(overfill)</p></td>
+<td><p>Precalculate Zernike polynomials for a given overfill factor. This function computes the Zernike polynomials up to <cite>self.n_modes</cite> and returns them in a 3D numpy array. The Zernike polynomials are calculated over a grid defined by <cite>self.npix</cite> and scaled by the <cite>overfill</cite> factor. Parameters: ----------- overfill : float     The overfill factor used to scale the radial coordinate <cite>rho</cite>. Returns: -------- Z : numpy.ndarray     A 3D array of shape (self.n_modes, self.npix, self.npix) containing     the precalculated Zernike polynomials. Each slice <cite>Z[mode, :, :]</cite>     corresponds to a Zernike polynomial mode.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">lofdahl_scharmer_filter</span></code>(Sconj_S, Sconj_I, sigma)</p></td>
+<td><p>Applies the Löfdahl-Scharmer filter to the given input tensors. Parameters: ----------- Sconj_S : torch.Tensor     The conjugate of the Fourier transform of the observed image. Sconj_I : torch.Tensor     The conjugate of the Fourier transform of the ideal image. Returns: -------- torch.Tensor     A tensor representing the mask after applying the Löfdahl-Scharmer filter.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">precalculate_zernike</span></code>(overfill)</p></td>
+<td><p>Precalculate Zernike polynomials for a given overfill factor. This function computes the Zernike polynomials up to <cite>self.n_modes</cite> and returns them in a 3D numpy array. The Zernike polynomials are calculated over a grid defined by <cite>self.npix</cite> and scaled by the <cite>overfill</cite> factor. Parameters: ----------- overfill : float     The overfill factor used to scale the radial coordinate <cite>rho</cite>. Returns: -------- Z : numpy.ndarray     A 3D array of shape (self.n_modes, self.npix, self.npix) containing     the precalculated Zernike polynomials. Each slice <cite>Z[mode, :, :]</cite>     corresponds to a Zernike polynomial mode.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_config_file</span></code>(filename)</p></td>
+<td><p>Read a configuration file in YAML format.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_frames</span></code>()</p></td>
+<td><p>Add frames to the deconvolution object. Parameters: ----------- frames : torch.Tensor     The input frames to be deconvolved (n_sequences, n_objects, n_frames, nx, ny). sigma : torch.Tensor     The noise standard deviation for each object. id_object : int, optional     The object index to which the frames belong (default is 0). diversity : torch.Tensor, optional     The diversity coefficient to use for the deconvolution (n_sequences, n_objects). If None, the diversity coefficient is set to zero for all objects. Returns: -------- None.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_object</span></code>([cutoffs])</p></td>
+<td><p>Update the object estimate with new cutoffs in the Fourier filter.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code>(filename[, extra])</p></td>
+<td><p>Write the deconvolved object to a file. Parameters: ----------- filename : str     The name of the file to which the object will be written. Returns: -------- None.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>active_annealing</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>define_basis</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>find_basis_wavefront</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>set_regularizations</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution_sv.DeconvolutionSV.active_annealing">
+<span class="sig-name descname"><span class="pre">active_annealing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.active_annealing" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution_sv.DeconvolutionSV.compute_syn">
+<span class="sig-name descname"><span class="pre">compute_syn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">im</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_filtered</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tiptilt_infer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes_infer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_tiptilt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_modes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i_o</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.compute_syn" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the synthetic image based on the inferred object, tip-tilt, and modes.</p>
+<p>Parameters:
+im (torch.Tensor): Input image tensor of shape (ns, no, nf, nx, ny).
+obj_infer (torch.Tensor): Inferred object tensor.
+tiptilt_infer (torch.Tensor): Inferred tip-tilt tensor.
+modes_infer (torch.Tensor): Inferred modes tensor.
+infer_modes (bool): Flag indicating whether to infer modes or simply apply tip-tilt.</p>
+<p>Returns:
+torch.Tensor: Synthetic image tensor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution_sv.DeconvolutionSV.deconvolve">
+<span class="sig-name descname"><span class="pre">deconvolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simultaneous_sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_tiptilt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infer_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tiptilt_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.deconvolve" title="Link to this definition">¶</a></dt>
+<dd><p>Perform spatially variant deconvolution on a set of frames.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution_sv.DeconvolutionSV.define_basis">
+<span class="sig-name descname"><span class="pre">define_basis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.define_basis" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="torchmfbd.deconvolution_sv.DeconvolutionSV.fft_filter_image">
+<span class="sig-name descname"><span class="pre">fft_filter_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_diffraction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.deconvolution_sv.DeconvolutionSV.fft_filter_image" title="Link to this definition">¶</a></dt>
+<dd><p>Filter the object in Fourier space
+It simply multiplies the FFT of the object (properly apodized) by the Fourier filter
+and returns the inverse FFT of the result. This can be used to avoid structures above
+the diffraction limit.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-torchmfbd.util">
+<span id="utilities"></span><h2><span class="section-number">2.7. </span>Utilities<a class="headerlink" href="#module-torchmfbd.util" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="torchmfbd.util.aperture">
+<span class="sig-prename descclassname"><span class="pre">torchmfbd.util.</span></span><span class="sig-name descname"><span class="pre">aperture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">npix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cent_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spider</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overfill</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.util.aperture" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the aperture image of a telescope</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>npix</strong> (<em>int</em><em>, </em><em>optional</em>) – number of pixels of the aperture image</p></li>
+<li><p><strong>cent_obs</strong> (<em>float</em><em>, </em><em>optional</em>) – central obscuration fraction</p></li>
+<li><p><strong>spider</strong> (<em>int</em><em>, </em><em>optional</em>) – spider size in pixels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>returns the aperture of the telescope</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>real</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchmfbd.util.apodize">
+<span class="sig-prename descclassname"><span class="pre">torchmfbd.util.</span></span><span class="sig-name descname"><span class="pre">apodize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.util.apodize" title="Link to this definition">¶</a></dt>
+<dd><p>Apodizes the input frames by subtracting the mean value and applying a window function.
+The mean value is computed along the last two dimensions of the input tensor.
+The window function is applied differently depending on the number of dimensions of the input tensor.
+The mean value is added back to the frames after applying the window function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frames</strong> (<em>torch.Tensor</em>) – The input tensor containing the frames to be apodized. The tensor can have 2, 3, 4, or 5 dimensions.</p></li>
+<li><p><strong>window</strong> (<em>torch.Tensor</em>) – The window function to be applied to the frames. The shape of the window should match the last two dimensions of the input tensor.</p></li>
+<li><p><strong>gradient</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the global gradient of the image is removed. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The apodized frames with the same shape as the input tensor.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchmfbd.util.azimuthal_power">
+<span class="sig-prename descclassname"><span class="pre">torchmfbd.util.</span></span><span class="sig-name descname"><span class="pre">azimuthal_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apodization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_angles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.util.azimuthal_power" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the azimuthal power spectrum of an image.
+:param image: The input image for which the azimuthal power spectrum is to be computed.
+:type image: numpy.ndarray
+:param d: The pixel size in the image. Default is 1.
+:type d: float, optional
+:param apodization: The size of the apodization window. Default is None.
+:type apodization: int, optional
+:param angles: A list of angles in degrees for which to compute the azimuthal power spectrum. Default is None.
+:type angles: list, optional
+:param range_angles: The range of angles around each specified angle (+-range) to include in the computation. Default is 5.
+:type range_angles: float, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The normalized frequency array (kvals) and the azimuthally averaged power spectrum (Abins).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(kvals, Abins) (tuple)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="torchmfbd.util.psf_scale">
+<span class="sig-prename descclassname"><span class="pre">torchmfbd.util.</span></span><span class="sig-name descname"><span class="pre">psf_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">telescope_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_pixel_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchmfbd.util.psf_scale" title="Link to this definition">¶</a></dt>
+<dd><p>Return the PSF scale appropriate for the required pixel size, wavelength and telescope diameter
+The aperture is padded by this amount; resultant pix scale is lambda/D/psf_scale, so for instance full frame 256 pix
+for 3.5 m at 532 nm is 256*5.32e-7/3.5/3 = 2.67 arcsec for psf_scale = 3</p>
+<p><a class="reference external" href="https://www.strollswithmydog.com/wavefront-to-psf-to-mtf-physical-units/#iv">https://www.strollswithmydog.com/wavefront-to-psf-to-mtf-physical-units/#iv</a></p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="userguide/movie.html" class="btn btn-neutral float-left" title="1.10. Movie" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="disclaimer.html" class="btn btn-neutral float-right" title="3. Disclaimer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Andres Asensio Ramos.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

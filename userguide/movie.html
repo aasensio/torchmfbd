@@ -1,0 +1,156 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1.10. Movie &mdash; torchmfbd 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2. API" href="../api.html" />
+    <link rel="prev" title="1.9. Regularization" href="regularization.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            torchmfbd
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../userguide.html">1. User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">1.1. Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deconvolution.html">1.2. Spatially invariant deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deconvolutionSV.html">1.3. Spatially variant deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diversity.html">1.4. Phase diversity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">1.5. Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="patches.html">1.6. Mosaicking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="destretch.html">1.7. Destretching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="destretch.html#alignment">1.8. Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regularization.html">1.9. Regularization</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.10. Movie</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">2. API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../disclaimer.html">3. Disclaimer</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">torchmfbd</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../userguide.html"><span class="section-number">1. </span>User guide</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">1.10. </span>Movie</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/userguide/movie.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="movie">
+<span id="configuration"></span><h1><span class="section-number">1.10. </span>Movie<a class="headerlink" href="#movie" title="Link to this heading">¶</a></h1>
+<p>You can easily generate a movie from a set of frames by using the <code class="docutils literal notranslate"><span class="pre">torchmfbd.gen_movie</span></code> function. The function takes as input the
+frames and, optionally, another set of frames, and generates a movie with the frames and the warped frames side by side. The function uses the <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> library to generate the movie. The function returns the movie as a file,
+either in <code class="docutils literal notranslate"><span class="pre">mp4</span></code> or <code class="docutils literal notranslate"><span class="pre">gif</span></code> format.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">torchmfbd</span><span class="o">.</span><span class="n">gen_movie</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">warped</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;movie.mp4&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The function has the following options:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">frames</span></code>: tensor</dt><dd><p>Tensor of shape <code class="docutils literal notranslate"><span class="pre">(n_frames,</span> <span class="pre">n_x,</span> <span class="pre">n_y)</span></code> with the frames to be shown in the movie.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">warped</span></code>: tensor, optional</dt><dd><p>Tensor of shape <code class="docutils literal notranslate"><span class="pre">(n_frames,</span> <span class="pre">n_x,</span> <span class="pre">n_y)</span></code> with the warped frames to be shown in the movie. Default is None.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">fps</span></code>: int, optional</dt><dd><p>Frames per second of the movie. Default is 1.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">filename</span></code>: str, optional</dt><dd><p>Name of the file to save the movie. Default is ‘movie.gif’.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">deltat</span></code>: int, optional</dt><dd><p>Time interval between frames in milliseconds. Default is 300.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="regularization.html" class="btn btn-neutral float-left" title="1.9. Regularization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../api.html" class="btn btn-neutral float-right" title="2. API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Andres Asensio Ramos.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
