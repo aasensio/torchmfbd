@@ -1,0 +1,54 @@
+telescope:
+    diameter: 100.0
+    central_obscuration : 0.0
+
+images:
+    n_pixel : 256
+    wavelength : 8542.0
+    pix_size : 0.059
+    apodization_border : 6
+
+object1:
+    wavelength : 8542.0
+    image_filter: tophat
+    cutoff : [0.75, 0.75]
+
+object2:
+    wavelength : 8542.0
+    image_filter: tophat
+    cutoff : [0.75, 0.75]
+        
+optimization:
+    gpu : 0
+    transform : softplus
+    softplus_scale : 1000.0    
+    lr_obj : 0.02
+    lr_modes : 0.08
+    lr_tt : 0.003
+
+regularization:
+    smooth1:
+        variable: tiptilt
+        lambda: 0.01
+    smooth2:
+        variable: modes
+        lambda: 0.01
+    iuwt1:
+        variable : object
+        lambda : 0.0003
+        nbands : 5
+
+psf:
+    model : nmf        
+    nmax_modes : 150
+    filename: 'basis/nmf_8542_n_150_r0_5_30.npz'
+    ngrid_modes: 8
+
+initialization:
+    object : contrast
+    modes_std : 0.0
+
+annealing:
+    type: none
+    start_pct : 0.0
+    end_pct : 0.85

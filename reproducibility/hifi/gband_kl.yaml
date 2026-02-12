@@ -1,0 +1,39 @@
+telescope:
+    diameter: 144.0
+    central_obscuration : 40.0
+
+images:
+    n_pixel : 32 
+    pix_size : 0.02761
+    apodization_border : 8
+
+object1:
+    wavelength : 4300.0
+    image_filter: scharmer
+    cutoff : [0.90, 0.95]
+    
+optimization:
+    gpu : 0
+    transform : softplus
+    softplus_scale : 1.0    
+    lr_obj : 0.02
+    lr_modes : 0.08
+
+regularization:
+     iuwt1:
+        variable : object
+        lambda : 0.0
+        nbands : 5
+
+psf:
+    model : kl
+    nmax_modes : 135
+
+initialization:
+    object : contrast
+    modes_std : 0.0
+
+annealing:
+    type: linear
+    start_pct : 0.0
+    end_pct : 0.5
