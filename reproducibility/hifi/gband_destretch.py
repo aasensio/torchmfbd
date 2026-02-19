@@ -41,24 +41,24 @@ if __name__ == '__main__':
     # Bluec images start at extension 2    
     initial = 1
 
-    frames = read_frames(npix, nframes, 'gband_bluec/hifiplus1_20230721_085151_sd.fts', initial)
+    frames = read_frames(npix, nframes, '../obs/gband_bluec/hifiplus1_20230721_085151_sd.fts', initial)
 
     
     # Convert to tensor
-    frames = torch.tensor(frames.astype('float32'))
+    frames = torch.tensor(frames.astype('float32')).to('cuda')
         
     # Destretch
     warped, tt = torchmfbd.destretch(frames[:, None, :, :, :],
-            ngrid=64, 
-            lr=0.50,
+            ngrid=128, 
+            lr=0.20,
             reference_frame=0,
             border=6,
-            n_iterations=40,
+            n_iterations=60,
             lambda_tt=0.01)
             
-    frames = warped[:, 0, :, :, :]
+    frames = warped[:, 0, :, :, :].cpu().numpy()
 
     hdu = fits.PrimaryHDU(data=frames)
 
     # Save the frames
-    hdu.writeto('gband_bluec/gband_aligned.fits', overwrite=True)
+    hdu.writeto('../obs/gband_bluec/gband_aligned.fits', overwrite=True)

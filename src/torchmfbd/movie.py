@@ -65,7 +65,7 @@ def gen_movie(frames,
              writer=PillowWriter(fps=fps))
     
     if '.mp4' in filename:    
-        ani.save('movie.mp4',
+        ani.save(filename,
              dpi=300,
              fps=fps)
     

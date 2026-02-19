@@ -43,7 +43,7 @@ def warp(image, flow_AB, mode='bilinear'):
 
     return warped_image
 
-def warp_affine(image, affine, mode='bilinear'):
+def warp_affine(image, affine, mode='bilinear', padding_mode='reflection'):
     """
     Warps an image using the provided affine matrix.
 
@@ -59,7 +59,7 @@ def warp_affine(image, affine, mode='bilinear'):
     warped_image = torch.nn.functional.grid_sample(image, 
                                                    tmp, 
                                                    mode=mode, 
-                                                   padding_mode='reflection', 
+                                                   padding_mode=padding_mode, 
                                                    align_corners=False)
         
     return warped_image

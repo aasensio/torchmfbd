@@ -114,6 +114,7 @@ def apply_destretch(frames, tt, mode='bilinear'):
     n_seq, n_o, n_f, n_x, n_y = frames.shape
     
     im = rearrange(frames, 'nb no nf nx ny -> (nb nf) no nx ny')
+    
     warped = warp(im, tt, mode=mode)
 
     warped = rearrange(warped, '(nb nf) no nx ny -> nb no nf nx ny', nb=n_seq)
@@ -125,7 +126,9 @@ def align(frames,
               lr=0.01,              
               border=10,
               n_iterations=20,              
-              mode='bilinear'              
+              mode='bilinear',
+              padding_mode='reflection',
+              no_shear=False
               ):
     
     """
@@ -152,11 +155,21 @@ def align(frames,
 
     finite_difference = util.FiniteDifference().to(frames.device)
     
-    affine = np.zeros((1, 2, 3), dtype=np.float32)
-    affine[:, 0, 0] = 1.0
-    affine[:, 1, 1] = 1.0
-    affine = torch.tensor(affine, device=device, requires_grad=True)        
-    optimizer = torch.optim.Adam([affine], lr=lr)
+    
+    if no_shear:
+        pars = torch.zeros(3, dtype=torch.float32, device=device, requires_grad=True)
+        
+        affine = np.zeros((1, 2, 3), dtype=np.float32)
+        affine[:, 0, 0] = 1.0
+        affine[:, 1, 1] = 1.0
+        affine = torch.tensor(affine, device=device, requires_grad=True)        
+        optimizer = torch.optim.Adam([pars], lr=lr)
+    else:        
+        affine = np.zeros((1, 2, 3), dtype=np.float32)
+        affine[:, 0, 0] = 1.0
+        affine[:, 1, 1] = 1.0
+        affine = torch.tensor(affine, device=device, requires_grad=True)        
+        optimizer = torch.optim.Adam([affine], lr=lr)
 
     # Reference frame
     ir = frames[0:1, :, :]
@@ -169,8 +182,17 @@ def align(frames,
     for loop in t:
 
         optimizer.zero_grad()
+
+        if no_shear:
+            affine = torch.zeros((1, 2, 3), dtype=torch.float32, device=device)
+            affine[:, 0, 0] = torch.cos(pars[0])
+            affine[:, 0, 1] = -torch.sin(pars[0])
+            affine[:, 1, 0] = torch.sin(pars[0])
+            affine[:, 1, 1] = torch.cos(pars[0])
+            affine[:, 0, 2] = pars[1]
+            affine[:, 1, 2] = pars[2]
                 
-        warped = warp_affine(im[None, ...], affine, mode='bilinear')[0, ...]
+        warped = warp_affine(im[None, ...], affine, mode='bilinear', padding_mode=padding_mode)[0, ...]
         
         iw = warped - torch.mean(warped, keepdim=True, dim=(-1, -2))
 
@@ -194,7 +216,7 @@ def align(frames,
         t.set_postfix(ordered_dict = tmp)
 
     if mode == 'nearest':
-        warped = warp(im, tt, mode='nearest')
+        warped = warp(im, tt, mode='nearest', padding_mode=padding_mode)
         warped = rearrange(warped, '(nb nf) no nx ny -> nb no nf nx ny', nb=n_seq)
 
     return warped.detach(), affine.detach()

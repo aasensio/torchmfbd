@@ -269,16 +269,17 @@ def imax(save=False):
         pl.savefig('figs/imax.pdf', dpi=300)
 
 def hifi(save=False):
-    gband = fits.open('hifi/gband.fits')
-    gband_speckle = fits.open('hifi/gband_bluec//hifiplus1_20230721_085151_sd_speckle.fts')
+    gband_joint = fits.open('hifi/gband_joint.fits')
+    gband_marginal = fits.open('hifi/gband_marginal.fits')
+    gband_speckle = fits.open('obs/gband_bluec/hifiplus1_20230721_085151_sd_speckle.fts')
 
     tio = fits.open('hifi/tio.fits')
-    tio_speckle = fits.open('hifi/ca3968_tio/hifiplus3_20230721_094744_sd_tio_speckle.fts')
+    tio_speckle = fits.open('obs/ca3968_tio/hifiplus3_20230721_094744_sd_tio_speckle.fts')
 
     ca3968 = fits.open('hifi/ca3968.fits')
-    ca3968_speckle = fits.open('hifi/ca3968_tio/hifiplus3_20230721_094744_sd_ca_speckle.fts')
+    ca3968_speckle = fits.open('obs/ca3968_tio/hifiplus3_20230721_094744_sd_ca_speckle.fts')
 
-    nx_gband = gband[0].data.shape[0]
+    nx_gband = gband_joint[0].data.shape[0]
     pix_gband = 0.02489
 
     nx_tio = tio[0].data.shape[0]
@@ -290,74 +291,37 @@ def hifi(save=False):
     vmin = 0.3
     vmax = 1.5
 
-    fig, ax = pl.subplots(nrows=3, ncols=3, figsize=(15, 15), tight_layout=True)
+    fig, ax = pl.subplots(nrows=1, ncols=4, figsize=(20, 5), tight_layout=True)
 
     for i in range(2):
-        im = gband[i].data[1:-1, 1:-1]
+        im = gband_joint[i].data[1:-1, 1:-1]
         im /= np.mean(im[0:120, 0:120])
         contrast = np.nanstd(im[0:120, 0:120]) / np.nanmean(im[0:120, 0:120]) * 100.0
-        ax[0, i].imshow(im, extent=[0, nx_gband*pix_gband, 0, nx_gband*pix_gband], cmap='gray', vmin=vmin, vmax=vmax)
-        ax[0, i].text(0.75, 0.95, f'{contrast:.2f}%',
-                          transform=ax[0, i].transAxes, 
-                          fontsize=18, 
-                          verticalalignment='top', 
-                          color='yellow',
-                          fontweight='bold')
-    
-    im = gband_speckle[0].data[8:nx_tio-32, 8:nx_tio-32]
-    im /= np.mean(im[0:120, 0:120])
-    contrast = np.nanstd(im[0:120, 0:120]) / np.nanmean(im[0:120, 0:120]) * 100.0
-    ax[0, 2].imshow(im, extent=[0, nx_tio*pix_tio, 0, nx_tio*pix_tio], cmap='gray', vmin=vmin, vmax=vmax)
-    ax[0, 2].text(0.75, 0.95, f'{contrast:.2f}%',
-                          transform=ax[0, 2].transAxes, 
-                          fontsize=18, 
-                          verticalalignment='top', 
-                          color='yellow',
-                          fontweight='bold')
-    
-
-    for i in range(2):
-        im = tio[i].data[1:-1, 1:-1]
-        im /= np.mean(im[0:120, 0:120])
-        contrast = np.nanstd(im[0:120, 0:120]) / np.nanmean(im[0:120, 0:120]) * 100.0
-        ax[1, i].imshow(im, extent=[0, nx_tio*pix_tio, 0, nx_tio*pix_tio], cmap='gray', vmin=vmin, vmax=vmax)
-        ax[1, i].text(0.75, 0.95, f'{contrast:.2f}%',
-                          transform=ax[1, i].transAxes, 
-                          fontsize=18, 
-                          verticalalignment='top', 
-                          color='yellow',
-                          fontweight='bold')
-
-    im = tio_speckle[0].data[8:nx_tio-32, 8:nx_tio-32]
-    im /= np.mean(im[0:120, 0:120])
-    contrast = np.nanstd(im[0:120, 0:120]) / np.nanmean(im[0:120, 0:120]) * 100.0
-    ax[1, 2].imshow(im, extent=[0, nx_tio*pix_tio, 0, nx_tio*pix_tio], cmap='gray', vmin=vmin, vmax=vmax)
-    ax[1, 2].text(0.75, 0.95, f'{contrast:.2f}%',
-                          transform=ax[1, 2].transAxes, 
-                          fontsize=18, 
-                          verticalalignment='top', 
-                          color='yellow',
-                          fontweight='bold')
-
-    for i in range(2):
-        im = ca3968[i].data[1:-1, 1:-1]
-        im /= np.mean(im[-120:, -120:])
-        contrast = np.nanstd(im[-120:, -120:]) / np.nanmean(im[-120:, -120:]) * 100.0
-        ax[2, i].imshow(im, extent=[0, nx_ca3968*pix_ca3968, 0, nx_ca3968*pix_ca3968], cmap='gray', vmin=vmin, vmax=vmax)
-        ax[2, i].text(0.75, 0.95, f'{contrast:.2f}%',
-                          transform=ax[2, i].transAxes, 
+        ax[i].imshow(im, extent=[0, nx_gband*pix_gband, 0, nx_gband*pix_gband], cmap='gray', vmin=vmin, vmax=vmax)
+        ax[i].text(0.75, 0.95, f'{contrast:.2f}%',
+                          transform=ax[i].transAxes, 
                           fontsize=18, 
                           verticalalignment='top', 
                           color='yellow',
                           fontweight='bold')
         
+    im = gband_marginal[1].data[1:-1, 1:-1]
+    im /= np.mean(im[0:120, 0:120])
+    contrast = np.nanstd(im[0:120, 0:120]) / np.nanmean(im[0:120, 0:120]) * 100.0
+    ax[2].imshow(im, extent=[0, nx_gband*pix_gband, 0, nx_gband*pix_gband], cmap='gray', vmin=vmin, vmax=vmax)
+    ax[2].text(0.75, 0.95, f'{contrast:.2f}%',
+                        transform=ax[2].transAxes, 
+                        fontsize=18, 
+                        verticalalignment='top', 
+                        color='yellow',
+                        fontweight='bold')
     
-    im = ca3968_speckle[0].data[8:nx_ca3968-32, 8:nx_ca3968-32]
-    im /= np.mean(im[-120:, -120:])
-    contrast = np.nanstd(im[-120:, -120:]) / np.nanmean(im[-120:, -120:]) * 100.0
-    ax[2, 2].imshow(im, extent=[0, nx_ca3968*pix_ca3968, 0, nx_ca3968*pix_ca3968], cmap='gray', vmin=vmin, vmax=vmax)
-    ax[2, 2].text(0.75, 0.95, f'{contrast:.2f}%',
-                          transform=ax[2, 2].transAxes, 
+    im = gband_speckle[0].data[8:nx_tio-32, 8:nx_tio-32]
+    im /= np.mean(im[0:120, 0:120])
+    contrast = np.nanstd(im[0:120, 0:120]) / np.nanmean(im[0:120, 0:120]) * 100.0
+    ax[3].imshow(im, extent=[0, nx_tio*pix_tio, 0, nx_tio*pix_tio], cmap='gray', vmin=vmin, vmax=vmax)
+    ax[3].text(0.75, 0.95, f'{contrast:.2f}%',
+                          transform=ax[3].transAxes, 
                           fontsize=18, 
                           verticalalignment='top', 
                           color='yellow',
@@ -365,30 +329,75 @@ def hifi(save=False):
     
     # Add a rectangle to indicate the region where contrast is computed
     rect = pl.Rectangle((0, (1022 - 120)*pix_gband), 120 * pix_gband, 1022 * pix_gband, linewidth=2, edgecolor='red', facecolor='none')
-    ax[0, 0].add_patch(rect)
-    
-    rect = pl.Rectangle((0, (1022 - 120)*pix_tio), 120 * pix_tio, 1022 * pix_tio, linewidth=2, edgecolor='red', facecolor='none')
-    ax[1, 0].add_patch(rect)
-    
-    rect = pl.Rectangle(((1022 - 120)*pix_ca3968, 0), 1022 * pix_ca3968, 120 * pix_ca3968, linewidth=2, edgecolor='red', facecolor='none')
-    ax[2, 0].add_patch(rect)
+    ax[0].add_patch(rect)
 
-    labels = ['G-band', 'TiO', 'Ca II H']
-
-    for i in range(3):
-        ax[i, 0].text(0.05, 0.95, labels[i], 
-                      transform=ax[i, 0].transAxes, 
+    ax[0].text(0.15, 0.95, 'G-band', 
+                      transform=ax[0].transAxes, 
                       fontsize=18, 
                       verticalalignment='top', 
                       color='yellow',
                       fontweight='bold')
 
-
+            
     fig.supxlabel('X [arcsec]')
     fig.supylabel('Y [arcsec]')
-    ax[0, 0].set_title('Frame')
-    ax[0, 1].set_title('torchmfbd')
-    ax[0, 2].set_title('Speckle')
+    ax[0].set_title('Frame')
+    ax[1].set_title('Joint')
+    ax[2].set_title('Marginal')
+    ax[3].set_title('Speckle')
+
+    fig, ax = pl.subplots(nrows=1, ncols=2, figsize=(10, 5), tight_layout=True)
+    diff_hifi = 1.22 * 4300e-8 / 144.0 * 206265.0
+    pix_crisp = 0.02761
+
+    # QS    
+    im = gband_joint[0].data[1:-1, 1:-1]
+    kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
+    
+    pars_s0 = np.mean(gband_marginal[2].data, axis=0)
+    K, v0, p, s2 = pars_s0
+    cutoff = 100.0 / (8542 * 1e-8) / 206265.0
+    nu = kk / cutoff / pix_crisp    
+    s_u = K / (1.0 + (nu/v0)**2)**p
+
+    s_u /= im.shape[0]
+
+    
+    print(f'QS - K={K}, v0={v0}, p={p}')
+
+
+    ax[0].loglog(kk, power , label='Frame', linewidth=2)    
+    ax[1].loglog(nu, power , label='Frame', linewidth=2)
+
+    ax[0].loglog(kk, s_u , label='Estimated s_u', linewidth=2, linestyle='--')
+    ax[1].loglog(nu, s_u , label='Estimated s_u', linewidth=2, linestyle='--')
+    
+    im = gband_joint[1].data[1:-1, 1:-1]
+    kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
+    nu = kk / cutoff / pix_crisp
+    
+    ax[0].loglog(kk, power , label='joint', linewidth=2)
+    ax[1].loglog(nu, power , label='MOMFBD', linewidth=2)
+    
+    im = gband_marginal[1].data[1:-1, 1:-1]
+    kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
+    nu = kk / cutoff / pix_crisp
+    ax[0].loglog(kk, power , label='Speckle', linewidth=2)
+    ax[1].loglog(nu, power , label='Speckle', linewidth=2)
+
+    im = gband_speckle[0].data[8:nx_tio-32, 8:nx_tio-32]
+    kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
+    nu = kk / cutoff / pix_crisp
+    ax[0].loglog(kk, power , label='marginal', linewidth=2)
+    ax[1].loglog(nu, power , label='marginal', linewidth=2)
+
+    ax[0].legend()
+    
+
+    ax[0].set_ylim([1e-8, 5e1])
+    ax[0].set_xlim([3e-3, 0.6])
+    ax[1].set_ylim([1e-8, 5e1])
+    ax[1].set_xlim([1e-2, 5])
 
     if save:
         pl.savefig('figs/hifi.pdf', dpi=300)
@@ -724,11 +733,11 @@ if __name__ == '__main__':
 
     save = False
 
-    crisp(save)
+    # crisp(save)
 
     #imax(save)
         
-    #hifi(save)
+    hifi(save)
 
     #chromis(save)
         

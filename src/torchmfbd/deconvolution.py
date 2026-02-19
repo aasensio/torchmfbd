@@ -190,7 +190,17 @@ class Deconvolution(object):
                 n = int(sol2)
             
             if n == 0:
-                raise Exception(f"Number of modes {self.n_modes} do not cover a full radial degree")
+                if sol1 > 0.0:
+                    sol = np.floor(sol1)
+                if sol2 > 0.0:
+                    sol = np.floor(sol2)
+                
+                if (self.add_piston):
+                    k_sol = (sol**2 + sol) / 2.0                    
+                else:
+                    k_sol = (sol**2 + sol) / 2.0 - 1
+                                        
+                raise Exception(f"Number of modes {self.n_modes} do not cover a full radial degree. Closest value : {k_sol}")
 
             self.noll_max = n   
 
@@ -684,7 +694,7 @@ class Deconvolution(object):
             psf_ft[i] = torch.fft.fft2(psf_norm[i], norm=self.fft_norm)
 
             if self.use_jitter and n_active > 20:
-
+                
                 sigma_x = torch.exp(jitter[:, :, 0])
                 sigma_y = torch.exp(jitter[:, :, 1])
                 rho_xy = torch.tanh(jitter[:, :, 2]) * sigma_x * sigma_y
@@ -873,6 +883,7 @@ class Deconvolution(object):
                 mask = self.lofdahl_scharmer_filter(Sconj_S, Sconj_I, sigma[i]**2) * self.mask_diffraction_th[i][None, :, :]
                 
                 out_ft[i] = Sconj_I / (Sconj_S + s2[:, None, None] / s_u)
+                # out_ft[i] = Sconj_I / (Sconj_S + 1e-10)
                             
                 out_filter_ft[i] = out_ft[i] * mask
             
@@ -1584,8 +1595,8 @@ class Deconvolution(object):
 
                 if self.use_jitter:
                     jitter = np.zeros((n_seq, self.n_f, 3))
-                    jitter[:, :, 0] = 0.0
-                    jitter[:, :, 1] = 0.0
+                    jitter[:, :, 0] = -2.0
+                    jitter[:, :, 1] = -2.0
                     jitter[:, :, 2] = 0.01
 
                     jitter_torch = torch.tensor(jitter.astype('float32')).to(self.device).requires_grad_(True)
