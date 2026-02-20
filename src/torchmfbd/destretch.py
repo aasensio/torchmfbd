@@ -144,6 +144,8 @@ def align(frames,
         border (int, optional): Border size to exclude from the loss computation. Default is 10.
         n_iterations (int, optional): Number of optimization iterations. Default is 20.        
         mode (str, optional): Interpolation mode for the warping. Default is 'bilinear' ('nearest'/'bilinear').        
+        padding_mode (str, optional): Padding mode for the warping. Default is 'reflection' ('zeros'/'border'/'reflection').
+        no_shear (bool, optional): If True, only optimize for rotation and translation (no shear). Default is False.
     Returns:
         tuple: A tuple containing:
             - warped (torch.Tensor): Warped frames after alignment.
@@ -222,8 +224,8 @@ def align(frames,
     return warped.detach(), affine.detach()
 
 
-def apply_align(frames, affine, mode='bilinear'):
+def apply_align(frames, affine, mode='bilinear', padding_mode='reflection'):
         
-    warped = warp_affine(frames, affine, mode=mode)
+    warped = warp_affine(frames, affine, mode=mode, padding_mode=padding_mode)
 
     return warped

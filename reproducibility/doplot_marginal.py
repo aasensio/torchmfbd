@@ -79,7 +79,7 @@ def crisp(save=False):
                           fontweight='bold')
             loop += 1
 
-    labels = ['Frame', 'joint', 'marginal', 'MOMFBD']
+    labels = ['Frame', 'Joint', 'Marginal', 'MOMFBD']
     for i in range(4):
         ax[i, 0].text(0.05, 0.95, labels[i], 
                       transform=ax[i, 0].transAxes, 
@@ -105,10 +105,10 @@ def crisp(save=False):
     # # cbar2.set_label('Intensity (Column 2)', fontsize=12)
 
     if save:
-        pl.savefig('figs/crisp_8542.pdf', dpi=300)
+        pl.savefig('figs_marginal/images_8542.pdf', dpi=300)
 
 
-    fig, ax = pl.subplots(nrows=2, ncols=2, figsize=(10, 10), tight_layout=True)
+    fig, ax = pl.subplots(nrows=2, ncols=1, figsize=(7.5, 15), tight_layout=True, sharex=True)
     diff_crisp = 1.22 * 8542e-8 / 100.0 * 206265.0
     pix_crisp = 0.059
 
@@ -124,39 +124,37 @@ def crisp(save=False):
 
     s_u /= im.shape[0]
 
+    ax[0].loglog(kk, s_u , label=r'S$_u$', linewidth=2, linestyle='--', color='C0')
+    # ax[, 1].loglog(nu, s_u , label=r'S$_u$', linewidth=2, linestyle='--', color='C0')
+
     
     print(f'QS - K={K}, v0={v0}, p={p}')
 
 
-    ax[0, 0].loglog(kk, power , label='Frame', linewidth=2)    
-    ax[0, 1].loglog(nu, power , label='Frame', linewidth=2)
+    ax[0].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])) , label='Frame', linewidth=2, color='C1')
     
     im = qs_8542_joint[1].data[0, ...][1:-1, 1:-1]    
     kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
     nu = kk / cutoff / pix_crisp
     
-    ax[0, 0].loglog(kk, power , label='joint', linewidth=2)
-    ax[0, 1].loglog(nu, power , label='MOMFBD', linewidth=2)
+    ax[0].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])) , label='Joint', linewidth=2, color='C2')
+    
+    im = qs_8542_marginal[1].data[0, ...][1:-1, 1:-1]
+    kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
+    nu = kk / cutoff / pix_crisp
+    ax[0].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])) , label='Marginal', linewidth=2, color='C3')
     
     im = qs_8542_joint[2].data[0, 190:190+nx_qs_8542, 190:190+nx_qs_8542]    
     kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
     nu = kk / cutoff / pix_crisp
-    ax[0, 0].loglog(kk, power , label='MOMFBD', linewidth=2)
-    ax[0, 1].loglog(nu, power , label='MOMFBD', linewidth=2)
-
-    im = qs_8542_marginal[1].data[0, ...][1:-1, 1:-1]
-    kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
-    nu = kk / cutoff / pix_crisp
-    ax[0, 0].loglog(kk, power , label='marginal', linewidth=2)
-    ax[0, 1].loglog(nu, power , label='marginal', linewidth=2)
+    ax[0].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])) , label='MOMFBD', linewidth=2, color='C4')
     
-    ax[0, 0].loglog(kk, s_u , label='Estimated s_u', linewidth=2, linestyle='--')
-    ax[0, 1].loglog(nu, s_u , label='Estimated s_u', linewidth=2, linestyle='--')
-
-    ax[0, 0].set_ylim([1e-8, 5e1])
-    ax[0, 0].set_xlim([3e-3, 0.6])
-    ax[0, 1].set_ylim([1e-8, 5e1])
-    ax[0, 1].set_xlim([1e-2, 5])
+    
+    
+    ax[0].set_ylim([1e-8, 5e1])
+    ax[0].set_xlim([3e-3, 0.6])
+    # ax[0 1].set_ylim([1e-8, 5e1])
+    # ax[0, 1].set_xlim([1e-2, 5])
 
     
     # Spot    
@@ -171,9 +169,9 @@ def crisp(save=False):
     s_u /= im.shape[0]
     print(f'Spot - K={K}, v0={v0}, p={p}')
 
+    ax[1].loglog(kk, s_u , label=r'S$_u$', linewidth=2, linestyle='--', color='C0')
 
-    ax[1, 0].loglog(kk, power , label='Frame', linewidth=2)
-    ax[1, 1].loglog(nu, power , label='Frame', linewidth=2)
+    ax[1].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])) , label='Frame', linewidth=2, color='C1')
     upper = np.nanmean(power[0:10] )
     lower = np.nanmean(power[-10:] )
 
@@ -181,92 +179,38 @@ def crisp(save=False):
     kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
     nu = kk / cutoff / pix_crisp
 
-    ax[1, 0].loglog(kk, power , label='joint', linewidth=2)
-    ax[1, 1].loglog(nu, power , label='joint', linewidth=2)
+    ax[1].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])) , label='Joint', linewidth=2, color='C2')
+    
+    im = spot_8542_marginal[1].data[0, ...][1:-1, 1:-1]
+    kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
+    nu = kk / cutoff / pix_crisp
+
+    ax[1].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])) , label='Marginal', linewidth=2, color='C3')
     
     im = spot_8542_joint[2].data[0, 190:190+nx_qs_8542, 190:190+nx_qs_8542]
     kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
     nu = kk / cutoff / pix_crisp
 
-    ax[1, 0].loglog(kk, power , label='MOMFBD', linewidth=2)    
-    ax[1, 1].loglog(nu, power , label='MOMFBD', linewidth=2)    
-
-    im = spot_8542_marginal[1].data[0, ...][1:-1, 1:-1]
-    kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
-    nu = kk / cutoff / pix_crisp
-
-    ax[1, 0].loglog(kk, power , label='marginal', linewidth=2)
-    ax[1, 1].loglog(nu, power , label='marginal', linewidth=2)
-
-    ax[1, 0].loglog(kk, s_u , label='Estimated s_u', linewidth=2, linestyle='--')
-    ax[1, 1].loglog(nu, s_u , label='Estimated s_u', linewidth=2, linestyle='--')
-
-    ax[0, 0].legend()
-    ax[1, 0].set_xlabel('Spatial frequency [1/pix]')
-    ax[1, 1].set_xlabel('Spatial frequency in diffraction-limited units')
-
-    ax[0, 0].axvline(1.0 / (diff_crisp / pix_crisp), color='black')
-    ax[1, 0].axvline(1.0 / (diff_crisp / pix_crisp), color='black')
-    ax[0, 0].set_title('CRISP - QS WB')
-    ax[0, 1].set_title('CRISP - QS WB')
-
-    ax[1, 0].set_title('CRISP - Spot WB')
-    ax[1, 1].set_title('CRISP - Spot WB')
-
-    
-    ax[1, 0].set_ylim([1e-8, 5e1])
-    ax[1, 0].set_xlim([3e-3, 0.6])
-    ax[1, 1].set_ylim([1e-8, 5e1])
-    ax[1, 1].set_xlim([1e-2, 5])
-
-
-def imax(save=False):
-    imax = fits.open('imax/imax.fits')
-    imax_pd = fits.open('imax/imaxf_image_estimated.fits')
-    
-    pix_imax = 0.055
-    apod = 100
-    nx = imax[0].data.shape[0] - 2*apod
-
-    fig, ax = pl.subplots(nrows=2, ncols=2, figsize=(10, 10), sharex=True, sharey=True, tight_layout=True)
-
-    for i in range(3):
-        im = imax[i].data[apod:-apod, apod:-apod]
-        contrast = np.nanstd(im) / np.nanmean(im) * 100.0
-                
-        ax.flat[i].imshow(imax[i].data[apod:-apod, apod:-apod], extent=[0, nx*pix_imax, 0, nx*pix_imax], cmap='gray')
-        ax.flat[i].text(0.75, 0.95, f'{contrast:.2f}%',
-                          transform=ax.flat[i].transAxes, 
-                          fontsize=18, 
-                          verticalalignment='top', 
-                          color='yellow',
-                          fontweight='bold')
-    
-    im = imax_pd[0].data[apod:-apod, apod:-apod]
-    contrast = np.nanstd(im) / np.nanmean(im) * 100.0
-    ax.flat[-1].imshow(imax_pd[0].data[apod:-apod, apod:-apod], extent=[0, nx*pix_imax, 0, nx*pix_imax], cmap='gray')
-    ax.flat[-1].text(0.75, 0.95, f'{contrast:.2f}%',
-                          transform=ax.flat[-1].transAxes, 
-                          fontsize=18, 
-                          verticalalignment='top', 
-                          color='yellow',
-                          fontweight='bold')
-
-    labels = ['Focused', 'Defocused', 'torchmfbd', 'Data release']
-    for i in range(4):
-        ax.flat[i].text(0.05, 0.95, labels[i], 
-                      transform=ax.flat[i].transAxes, 
-                      fontsize=18, 
-                      verticalalignment='top', 
-                      color='yellow',
-                      fontweight='bold')
+    ax[1].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])) , label='MOMFBD', linewidth=2, color='C4')    
     
 
-    fig.supxlabel('X [arcsec]')
-    fig.supylabel('Y [arcsec]')
+    ax[0].legend()
+    fig.supxlabel('Spatial frequency [1/pix]')
+    fig.supylabel('Normalized power')
+    
+    ax[0].axvline(1.0 / (diff_crisp / pix_crisp), color='black')    
+    ax[1].axvline(1.0 / (diff_crisp / pix_crisp), color='black')    
+    ax[0].set_title('CRISP - QS WB')
+    
+    ax[1].set_title('CRISP - Spot WB')
+    
+    
+    ax[1].set_ylim([1e-8, 5e1])
+    ax[1].set_xlim([3e-3, 0.6])
 
     if save:
-        pl.savefig('figs/imax.pdf', dpi=300)
+        pl.savefig('figs_marginal/power_8542.pdf', dpi=300)
+    
 
 def hifi(save=False):
     gband_joint = fits.open('hifi/gband_joint.fits')
@@ -298,7 +242,7 @@ def hifi(save=False):
         im /= np.mean(im[0:120, 0:120])
         contrast = np.nanstd(im[0:120, 0:120]) / np.nanmean(im[0:120, 0:120]) * 100.0
         ax[i].imshow(im, extent=[0, nx_gband*pix_gband, 0, nx_gband*pix_gband], cmap='gray', vmin=vmin, vmax=vmax)
-        ax[i].text(0.75, 0.95, f'{contrast:.2f}%',
+        ax[i].text(0.7, 0.95, f'{contrast:.2f}%',
                           transform=ax[i].transAxes, 
                           fontsize=18, 
                           verticalalignment='top', 
@@ -309,7 +253,7 @@ def hifi(save=False):
     im /= np.mean(im[0:120, 0:120])
     contrast = np.nanstd(im[0:120, 0:120]) / np.nanmean(im[0:120, 0:120]) * 100.0
     ax[2].imshow(im, extent=[0, nx_gband*pix_gband, 0, nx_gband*pix_gband], cmap='gray', vmin=vmin, vmax=vmax)
-    ax[2].text(0.75, 0.95, f'{contrast:.2f}%',
+    ax[2].text(0.7, 0.95, f'{contrast:.2f}%',
                         transform=ax[2].transAxes, 
                         fontsize=18, 
                         verticalalignment='top', 
@@ -320,7 +264,7 @@ def hifi(save=False):
     im /= np.mean(im[0:120, 0:120])
     contrast = np.nanstd(im[0:120, 0:120]) / np.nanmean(im[0:120, 0:120]) * 100.0
     ax[3].imshow(im, extent=[0, nx_tio*pix_tio, 0, nx_tio*pix_tio], cmap='gray', vmin=vmin, vmax=vmax)
-    ax[3].text(0.75, 0.95, f'{contrast:.2f}%',
+    ax[3].text(0.7, 0.95, f'{contrast:.2f}%',
                           transform=ax[3].transAxes, 
                           fontsize=18, 
                           verticalalignment='top', 
@@ -346,9 +290,12 @@ def hifi(save=False):
     ax[2].set_title('Marginal')
     ax[3].set_title('Speckle')
 
-    fig, ax = pl.subplots(nrows=1, ncols=2, figsize=(10, 5), tight_layout=True)
+    if save:
+        pl.savefig('figs_marginal/images_hifi.pdf', dpi=300)
+
+    fig, ax = pl.subplots(nrows=1, ncols=1, figsize=(5, 5), tight_layout=True)
     diff_hifi = 1.22 * 4300e-8 / 144.0 * 206265.0
-    pix_crisp = 0.02761
+    pix_hifi = 0.02761
 
     # QS    
     im = gband_joint[0].data[1:-1, 1:-1]
@@ -357,7 +304,7 @@ def hifi(save=False):
     pars_s0 = np.mean(gband_marginal[2].data, axis=0)
     K, v0, p, s2 = pars_s0
     cutoff = 100.0 / (8542 * 1e-8) / 206265.0
-    nu = kk / cutoff / pix_crisp    
+    nu = kk / cutoff / pix_hifi
     s_u = K / (1.0 + (nu/v0)**2)**p
 
     s_u /= im.shape[0]
@@ -366,181 +313,38 @@ def hifi(save=False):
     print(f'QS - K={K}, v0={v0}, p={p}')
 
 
-    ax[0].loglog(kk, power , label='Frame', linewidth=2)    
-    ax[1].loglog(nu, power , label='Frame', linewidth=2)
-
-    ax[0].loglog(kk, s_u , label='Estimated s_u', linewidth=2, linestyle='--')
-    ax[1].loglog(nu, s_u , label='Estimated s_u', linewidth=2, linestyle='--')
+    ax.loglog(kk, power / 10.0**np.nanmean(np.log10(power[0:5])), label='Frame', linewidth=2)    
+    
+    ax.loglog(kk, s_u / s_u[0], label=r'S$_u$', linewidth=2, linestyle='--')
     
     im = gband_joint[1].data[1:-1, 1:-1]
     kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
-    nu = kk / cutoff / pix_crisp
+    nu = kk / cutoff / pix_hifi
     
-    ax[0].loglog(kk, power , label='joint', linewidth=2)
-    ax[1].loglog(nu, power , label='MOMFBD', linewidth=2)
+    ax.loglog(kk, power / 10.0**np.nanmean(np.log10(power[0:5])) , label='Joint', linewidth=2)
+    
+    im = gband_speckle[0].data[8:nx_tio-32, 8:nx_tio-32]
+    kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
+    nu = kk / cutoff / pix_hifi
+    ax.loglog(kk, power / 10.0**np.nanmean(np.log10(power[0:5])), label='Marginal', linewidth=2)
     
     im = gband_marginal[1].data[1:-1, 1:-1]
     kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
-    nu = kk / cutoff / pix_crisp
-    ax[0].loglog(kk, power , label='Speckle', linewidth=2)
-    ax[1].loglog(nu, power , label='Speckle', linewidth=2)
-
-    im = gband_speckle[0].data[8:nx_tio-32, 8:nx_tio-32]
-    kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
-    nu = kk / cutoff / pix_crisp
-    ax[0].loglog(kk, power , label='marginal', linewidth=2)
-    ax[1].loglog(nu, power , label='marginal', linewidth=2)
-
-    ax[0].legend()
+    nu = kk / cutoff / pix_hifi
+    ax.loglog(kk, power / 10.0**np.nanmean(np.log10(power[0:5])) , label='Speckle', linewidth=2)
     
-
-    ax[0].set_ylim([1e-8, 5e1])
-    ax[0].set_xlim([3e-3, 0.6])
-    ax[1].set_ylim([1e-8, 5e1])
-    ax[1].set_xlim([1e-2, 5])
-
+    ax.legend()
+    ax.set_ylim([1e-8, 5e1])
+    ax.set_xlim([3e-3, 0.6])
+    
+    fig.supxlabel('Spatial frequency [1/pix]')
+    fig.supylabel('Normalized power')
+    
+    ax.axvline(1.0 / (diff_hifi / pix_hifi), color='black')
+    
     if save:
-        pl.savefig('figs/hifi.pdf', dpi=300)
+        pl.savefig('figs_marginal/power_hifi.pdf', dpi=300)
 
-def chromis(save=False):
-    spot = fits.open('spot_3934/spot_3934.fits')
-    spot_pd = fits.open('spot_3934/spot_3934_pd.fits')
-    
-    pix_spot = 0.038
-    vmin = [0.1, 0.2]
-    vmax = [2.1, 2.0]
-
-    delta = 150
-    
-    fig, ax = pl.subplots(nrows=4, ncols=2, figsize=(10, 20), sharex=True, sharey=True, tight_layout=True)
-    
-    for i in range(2):
-        im = spot[0].data[i, 1:-1, 1:-1]
-        im /= np.mean(im[0:delta, 0:delta])
-
-        nx = im.shape[0]
-
-        ax[0, i].imshow(im, extent=[0, nx*pix_spot, 0, nx*pix_spot], cmap='gray', vmin=vmin[i], vmax=vmax[i])
-        contrast = np.nanstd(im[0:delta, 0:delta]) / np.nanmean(im[0:delta, 0:delta]) * 100.0
-        if i == 0:
-            ax[0, i].text(0.75, 0.95, f'{contrast:.2f}%',
-                          transform=ax[0, i].transAxes, 
-                          fontsize=18, 
-                          verticalalignment='top', 
-                          color='yellow',
-                          fontweight='bold')
-        
-    for i in range(2):
-        im = spot[1].data[i, 1:-1, 1:-1]
-        im /= np.mean(im[0:delta, 0:delta])
-
-        ax[1, i].imshow(im, extent=[0, nx*pix_spot, 0, nx*pix_spot], cmap='gray', vmin=vmin[i], vmax=vmax[i])
-        contrast = np.nanstd(im[0:delta, 0:delta]) / np.nanmean(im[0:delta, 0:delta]) * 100.0
-        if i == 0:
-            ax[1, i].text(0.75, 0.95, f'{contrast:.2f}%',
-                          transform=ax[1, i].transAxes, 
-                          fontsize=18, 
-                          verticalalignment='top', 
-                          color='yellow',
-                          fontweight='bold')
-
-    for i in range(2):
-        im = spot_pd[1].data[i, 1:-1, 1:-1]
-        im /= np.mean(im[0:delta, 0:delta])
-
-        ax[2, i].imshow(im, extent=[0, nx*pix_spot, 0, nx*pix_spot], cmap='gray', vmin=vmin[i], vmax=vmax[i])
-        contrast = np.nanstd(im[0:delta, 0:delta]) / np.nanmean(im[0:delta, 0:delta]) * 100.0
-        if i == 0:
-            ax[2, i].text(0.75, 0.95, f'{contrast:.2f}%',
-                          transform=ax[2, i].transAxes, 
-                          fontsize=18, 
-                          verticalalignment='top', 
-                          color='yellow',
-                          fontweight='bold')
-        
-    for i in range(2):
-        im = spot[2].data[i, 75:75+454, 535:535+454]
-        im /= np.mean(im[0:delta, 0:delta])
-        ax[3, i].imshow(im, extent=[0, nx*pix_spot, 0, nx*pix_spot], cmap='gray', vmin=vmin[i], vmax=vmax[i])
-        contrast = np.nanstd(spot[2].data[i, 75:75+454, 535:535+454][0:delta, 0:delta]) / np.nanmean(spot[2].data[i, 75:75+454, 535:535+454][0:delta, 0:delta]) * 100.0
-        if i == 0:
-            ax[3, i].text(0.75, 0.95, f'{contrast:.2f}%',
-                          transform=ax[3, i].transAxes, 
-                          fontsize=18, 
-                          verticalalignment='top', 
-                          color='yellow',
-                          fontweight='bold')
-                
-    labels = ['Frame', 'torchmfbd', 'torchmfbd PD', 'MOMFBD PD']
-    for i in range(4):
-        ax[i, 0].text(0.05, 0.95, labels[i], 
-                      transform=ax[i, 0].transAxes, 
-                      fontsize=18, 
-                      verticalalignment='top', 
-                      color='yellow',
-                      fontweight='bold')
-    
-    ax[0, 0].set_title('Wideband')
-    ax[0, 1].set_title('Narrowband')
-
-    rect = pl.Rectangle((0, nx*pix_spot), delta * pix_spot, -delta * pix_spot, linewidth=2, edgecolor='red', facecolor='none')
-    ax[0, 0].add_patch(rect)
-    
-    fig.supxlabel('X [arcsec]')
-    fig.supylabel('Y [arcsec]')
-
-    if save:
-        pl.savefig('figs/spot_3934.pdf', dpi=300)
-
-def timing(save=False):
-
-    patches = np.array([961, 225, 49])
-
-    tmp_32 = np.load('timing/times_32.npz')
-    tmp_64 = np.load('timing/times_64.npz')
-    tmp_128 = np.load('timing/times_128.npz')
-    # tmp_256 = np.load('timing/times_256.npz')
-
-    fig, ax = pl.subplots(figsize=(8, 6), tight_layout=True)
-    ax.tick_params(axis='both', which='major', labelsize=14)  # Increase tick label size
-    ax.set_title(ax.get_title(), fontsize=16)  # Increase title font size
-    ax.set_xlabel(ax.get_xlabel(), fontsize=14)  # Increase x-axis label font size
-    ax.set_ylabel(ax.get_ylabel(), fontsize=14)  # Increase y-axis label font size
-
-    x_32 = np.clip(patches[0] / tmp_32['values'], a_min=1, a_max=None)
-    x_64 = np.clip(patches[1] / tmp_64['values'], a_min=1, a_max=None)
-    x_128 = np.clip(patches[2] / tmp_128['values'], a_min=1, a_max=None)
-            
-    ax.plot(x_32, tmp_32['times'], linewidth=3, label=f'32 pix')
-    ax.plot(x_64, tmp_64['times'], linewidth=3, label=f'64 pix')
-    ax.plot(x_128, tmp_128['times'], linewidth=3, label=f'128 pix')
-    
-    ax2 = ax.twinx()
-    ax2.plot(x_32, tmp_32['mem'] / 1024, '--', linewidth=3)
-    ax2.plot(x_64, tmp_64['mem'] / 1024, '--', linewidth=3)
-    ax2.plot(x_128, tmp_128['mem'] / 1024, '--', linewidth=3)
-
-    ax.text(0.75, 0.18, 'Memory',
-                      transform=ax.transAxes, 
-                      fontsize=14, 
-                      verticalalignment='top')
-    
-    ax.text(0.75, 0.55, 'Time',
-                      transform=ax.transAxes, 
-                      fontsize=14, 
-                      verticalalignment='top')
-    
-    ax.set_title(r'512$\times$512')
-    
-    ax.set_xlim([0, 12])
-    ax.set_ylim([1., 5])
-    ax.legend(loc='upper right', fontsize=14)
-    ax.set_xlabel('Number of batches')
-    ax.set_ylabel('Time [s]')
-    ax2.set_ylabel('Memory [GB]')
-
-    if save:
-        pl.savefig('figs/timing.pdf', dpi=300)
 
 
 def power(save=False):
@@ -573,7 +377,6 @@ def power(save=False):
 
     nx_tio = tio[0].data.shape[0]
     
-
     # G-band
     kk, power = torchmfbd.util.azimuthal_power(gband[0].data[1:-1, 1:-1], apodization=10, angles=[-45,45], range_angles=15)    
     ax[0, 0].loglog(kk, power / power[0], label='Frame', linewidth=2)
@@ -726,6 +529,59 @@ def power(save=False):
         pl.savefig('figs/power.pdf', dpi=300)
 
 
+def crisp_noise(save=False):
+    qs_8542_joint = fits.open('qs_8542/qs_8542_joint.fits')
+    qs_8542_joint_0_01 = fits.open('qs_8542/qs_8542_joint_noise_0.01.fits')
+    qs_8542_joint_0_1 = fits.open('qs_8542/qs_8542_joint_noise_0.1.fits')
+    qs_8542_joint_0_3 = fits.open('qs_8542/qs_8542_joint_noise_0.3.fits')
+
+    qs_8542_marginal = fits.open('qs_8542/qs_8542_marginal.fits')
+    qs_8542_marginal_0_01 = fits.open('qs_8542/qs_8542_marginal_noise_0.01.fits')
+    qs_8542_marginal_0_1 = fits.open('qs_8542/qs_8542_marginal_noise_0.1.fits')
+    qs_8542_marginal_0_3 = fits.open('qs_8542/qs_8542_marginal_noise_0.3.fits')
+
+    fig, ax = pl.subplots(nrows=3, ncols=4, figsize=(20, 15), tight_layout=True)
+
+    ax[0, 0].imshow(qs_8542_joint[0].data[0, ...], origin='lower')
+    ax[0, 0].set_title('QS 8542 - Frame')
+
+    ax[0, 1].imshow(qs_8542_joint_0_01[0].data[0, ...], origin='lower')
+    ax[0, 1].set_title('QS 8542 - Frame (noise=0.01)')
+
+    ax[0, 2].imshow(qs_8542_joint_0_1[0].data[0, ...], origin='lower')
+    ax[0, 2].set_title('QS 8542 - Frame (noise=0.1)')
+
+    ax[0, 3].imshow(qs_8542_joint_0_3[0].data[0, ...], origin='lower')
+    ax[0, 3].set_title('QS 8542 - Frame (noise=0.3)')
+
+
+    ax[1, 0].imshow(qs_8542_joint[1].data[0, ...], origin='lower')
+    ax[1, 0].set_title('QS 8542 - Joint')
+
+    ax[1, 1].imshow(qs_8542_joint_0_01[1].data[0, ...], origin='lower')
+    ax[1, 1].set_title('QS 8542 - Joint (noise=0.01)')
+
+    ax[1, 2].imshow(qs_8542_joint_0_1[1].data[0, ...], origin='lower')
+    ax[1, 2].set_title('QS 8542 - Joint (noise=0.1)')
+
+    ax[1, 3].imshow(qs_8542_joint_0_3[1].data[0, ...], origin='lower')
+    ax[1, 3].set_title('QS 8542 - Joint (noise=0.3)')
+
+    ax[2, 0].imshow(qs_8542_marginal[1].data[0, ...], origin='lower')
+    ax[2, 0].set_title('QS 8542 - Marginal')
+
+    ax[2, 1].imshow(qs_8542_marginal_0_01[1].data[0, ...], origin='lower')
+    ax[2, 1].set_title('QS 8542 - Marginal (noise=0.01)')
+
+    ax[2, 2].imshow(qs_8542_marginal_0_1[1].data[0, ...], origin='lower')
+    ax[2, 2].set_title('QS 8542 - Marginal (noise=0.1)')
+
+    ax[2, 3].imshow(qs_8542_marginal_0_3[1].data[0, ...], origin='lower')
+    ax[2, 3].set_title('QS 8542 - Marginal (noise=0.3)')
+
+    if save:
+        pl.savefig('figs/qs_8542_noise.pdf', dpi=300)
+
 
 if __name__ == '__main__':
 
@@ -735,12 +591,8 @@ if __name__ == '__main__':
 
     # crisp(save)
 
-    #imax(save)
+    crisp_noise(save)
         
-    hifi(save)
-
-    #chromis(save)
-        
-    #timing(save)
+    # hifi(save)
 
     #power(save)
