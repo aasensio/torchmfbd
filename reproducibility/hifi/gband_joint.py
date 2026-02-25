@@ -8,7 +8,7 @@ from astropy.io import fits
 
 if __name__ == '__main__':
 
-    n_frames = 30
+    n_frames = 20
 
     f = fits.open('../obs/gband_bluec/gband_aligned.fits')
 
@@ -21,10 +21,9 @@ if __name__ == '__main__':
     # Convert to tensor
     frames = torch.tensor(frames.astype('float32'))
     
-    # frames = frames[:, :, 0:256, 0:256]
+    # frames = frames[:, :, 0:512, 0:512]
 
-    # frames /= torch.mean(frames[:, :, :, :], dim=(-2, -1), keepdim=True)
-
+    frames /= torch.mean(frames[:, :, :, :], dim=(-2, -1), keepdim=True)
     
     # Create the deconvolution object                
     decSI = torchmfbd.Deconvolution('gband_joint.yaml')
@@ -39,7 +38,7 @@ if __name__ == '__main__':
     decSI.deconvolve(infer_object=False, 
                      optimizer='adam', 
                      simultaneous_sequences=1000,
-                     n_iterations=500)
+                     n_iterations=250)
             
     # Unpatchify
     obj = patchify.unpatchify(decSI.obj[0], apodization=6, weight_type='cosine', weight_params=30).cpu().numpy()

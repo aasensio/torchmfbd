@@ -50,13 +50,11 @@ if __name__ == '__main__':
         f.create_dataset('im', data=im)
         f.close()
     
-    for noise in [0.1, 0.3]:
+    for s_u in [10.0, 100.0, 1000.0, 10000.0]:
         frames = im[:, :, :, 0:npix, 0:npix]
 
         frames /= np.mean(frames, axis=(-1, -2), keepdims=True)
-
-        frames += noise * np.random.randn(*frames.shape)
-
+        
         contrast = np.std(frames, axis=(-1,-2)) / np.mean(frames, axis=(-1,-2))
         ind_best_contrast = np.argmax(contrast[0, 0, :])
 
@@ -65,52 +63,22 @@ if __name__ == '__main__':
         patchify = torchmfbd.Patchify4D()    
                 
         n_scans, n_obj, n_frames, nx, ny = frames.shape
-        
-        ##########################
-        # Marginal deconvolution
-        ##########################
-        decSI = torchmfbd.Deconvolution('qs_8542_marginal.yaml')
 
-        # Patchify and add the frames
-        frames_patches = [None] * 2
-        for i in range(2):        
-            frames_patches[i] = patchify.patchify(frames[:, i, :, :, :], patch_size=88, stride_size=40, flatten_sequences=True)
-            decSI.add_frames(frames_patches[i], id_object=i, id_diversity=0, diversity=0.0)
-                
-        
-        decSI.deconvolve(infer_object=False, 
-                        optimizer='adamw', 
-                        simultaneous_sequences=200,
-                        n_iterations=450)
-                
-        obj = []    
-        best_frame = []
-        for i in range(2):
-            obj.append(patchify.unpatchify(decSI.obj[i], apodization=6, weight_type='cosine', weight_params=30).cpu().numpy())        
-            best_frame.append(patchify.unpatchify(frames_patches[i][:, ind_best_contrast, :, :], apodization=6, weight_type='cosine', weight_params=30).cpu().numpy())
-        
-        mfbd = [None] * 2
-        mfbd[0] = fits.open('../aux/camXX_2019-08-01T08:15:47_00010_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]    
-        mfbd[1] = fits.open('../aux/camXXV_2019-08-01T08:15:47_00010_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]
-        
-        # Save the object as a fits file
-        best_frame = np.concatenate([best_frame[0][0:1, ...], best_frame[1][0:1, ...]], axis=0)
-        obj = np.concatenate([obj[0][0:1, ...], obj[1][0:1, ...]], axis=0)    
-        mfbd = np.concatenate(mfbd, axis=0)
-        hdu0 = fits.PrimaryHDU(best_frame)    
-        hdu1 = fits.ImageHDU(obj)    
-        hdu2 = fits.ImageHDU(mfbd)
-        hdu3 = fits.ImageHDU(decSI.obj[0].cpu().numpy())
-        hdu4 = fits.ImageHDU(decSI.obj[1].cpu().numpy())    
-        hdu5 = fits.ImageHDU(decSI.pars_s0[0].cpu().numpy())
-        hdu6 = fits.ImageHDU(decSI.rho[0].cpu().numpy())
-        hdul = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6])
-        hdul.writeto(f'qs_8542_marginal_noise_{noise}.fits', overwrite=True)
+        f = open('qs_8542_joint.yaml', 'r')
+        lines = f.readlines()
+        f.close()
 
+        lines[13] = f"    s_u_joint: {s_u}\n"
+        lines[19] = f"    s_u_joint: {s_u}\n"
+
+        f = open('tmp_joint.yaml', 'w')
+        f.writelines(lines)
+        f.close()
+        
         ##########################
         # Joint deconvolution
         ##########################
-        decSI = torchmfbd.Deconvolution('qs_8542_joint.yaml')
+        decSI = torchmfbd.Deconvolution('tmp_joint.yaml')
 
         # Patchify and add the frames
         frames_patches = [None] * 2
@@ -144,4 +112,4 @@ if __name__ == '__main__':
         hdu3 = fits.ImageHDU(decSI.obj[0].cpu().numpy())
         hdu4 = fits.ImageHDU(decSI.obj[1].cpu().numpy())            
         hdul = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4])
-        hdul.writeto(f'qs_8542_joint_noise_{noise}.fits', overwrite=True)
+        hdul.writeto(f'qs_8542_joint_su_{s_u}.fits', overwrite=True)

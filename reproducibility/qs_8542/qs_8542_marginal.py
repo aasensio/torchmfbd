@@ -54,6 +54,8 @@ if __name__ == '__main__':
 
     frames /= np.mean(frames, axis=(-1, -2), keepdims=True)
 
+    frames += 0.1 * np.random.normal(size=frames.shape)
+
     contrast = np.std(frames, axis=(-1,-2)) / np.mean(frames, axis=(-1,-2))
     ind_best_contrast = np.argmax(contrast[0, 0, :])
 
@@ -73,7 +75,7 @@ if __name__ == '__main__':
             
     
     decSI.deconvolve(infer_object=False, 
-                     optimizer='adamw', 
+                     optimizer='adam', 
                      simultaneous_sequences=200,
                      n_iterations=450)
             

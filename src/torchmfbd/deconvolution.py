@@ -389,7 +389,7 @@ class Deconvolution(object):
                     self.pupil[j] = pupil
                     self.basis[j] = basis
                     self.defocus_basis[j] = defocus_basis
-                    self.rho[j] = rho
+                    self.rho[j] = rho                    
                     self.f_x[j] = f_x * cutoff
                     self.f_y[j] = f_y * cutoff
                     self.x[j] = X
@@ -806,7 +806,7 @@ class Deconvolution(object):
         
         return torch.tensor(mask.astype('float32')).to(Sconj_S.device)
 
-    def get_su_s2(self, obj, sigma, pars_s0):
+    def get_su_s2(self, obj, sigma, pars_s0, frames_mean):
         """
         Transforms the parameters of the s0 function to ensure they are in the correct range.
         Parameters:
@@ -827,15 +827,19 @@ class Deconvolution(object):
         # p = torch.exp(1.6*F.sigmoid(pars_s0[:, 2]))[:, None, None]
 
         if self.loss_type == 'marginal':
-            K = torch.exp(pars_s0[:, obj, 0])[:, None, None] * self.npix
+            K = torch.exp(pars_s0[:, obj, 0])[:, None, None] #* self.npix**2
             v0 = torch.exp(pars_s0[:, obj, 1])[:, None, None]            
-            p = torch.exp(torch.sigmoid(pars_s0[:, obj, 2]) * np.log(10.0))[:, None, None]
+            p = torch.exp(pars_s0[:, obj, 2])[:, None, None]
 
             v = self.rho[obj][None, :, :]
 
-            s_u = K / (1.0 + (v/v0)**2)**(p/2.0)
-            # s_u = K / (1.0 + (v/v0)**p)
+            # Evaluate the s_u function on the frequency grid. We use the mean of the frames in Fourier space to set the scale of s_u at frequency 0,0
+            s_u = K  / (1.0 + (v/v0)**2)**(p/2.0)
 
+            # The DC component of the Fourier transform of the image is equal to sqrt(nx*ny)*mean if norm='ortho'
+            # As a consequence, the variance of the noise at frequency (0,0) is given by s_u[0,0] = mean**2 * nx * ny
+            s_u[:, 0, 0] = frames_mean**2 * self.npix * self.npix
+            
             # s2 = torch.mean(sigma[obj]**2, dim=1)
             s2 = torch.exp(pars_s0[:, obj, 3])
         else:
@@ -874,16 +878,20 @@ class Deconvolution(object):
             Sconj_S = torch.sum(torch.conj(psf_ft[i]) * psf_ft[i], dim=1)
             Sconj_I = torch.sum(torch.conj(psf_ft[i]) * images_ft[i], dim=1)
 
-            s_u, s2, K, v0, p = self.get_su_s2(obj=i, sigma=sigma, pars_s0=pars_s0)
+            frames_mean = torch.mean(images_ft[i][:, :, 0, 0], dim=1).real
+
+            s_u, s2, K, v0, p = self.get_su_s2(obj=i, sigma=sigma, pars_s0=pars_s0, frames_mean=frames_mean)
 
             # s2 = torch.mean(sigma[i]**2, dim=1) * 10            
             # Use Lofdahl & Scharmer (1994) filter
             if (self.image_filter[i] == 'scharmer'):
 
-                mask = self.lofdahl_scharmer_filter(Sconj_S, Sconj_I, sigma[i]**2) * self.mask_diffraction_th[i][None, :, :]
-                
-                out_ft[i] = Sconj_I / (Sconj_S + s2[:, None, None] / s_u)
-                # out_ft[i] = Sconj_I / (Sconj_S + 1e-10)
+                ######### WHAT SHOULD WE CHOOSE FOR COMPUTING THE FILTER??            
+                # mask = self.lofdahl_scharmer_filter(Sconj_S + s2[:, None, None] / s_u, Sconj_I, s2[:, None].detach()) * self.mask_diffraction_th[i][None, :, :]
+                # out_ft[i] = Sconj_I / (Sconj_S + s2[:, None, None] / s_u)
+
+                mask = self.lofdahl_scharmer_filter(Sconj_S, Sconj_I, s2[:, None].detach()) * self.mask_diffraction_th[i][None, :, :]
+                out_ft[i] = Sconj_I / (Sconj_S + 1e-10)
                             
                 out_filter_ft[i] = out_ft[i] * mask
             
@@ -926,25 +934,33 @@ class Deconvolution(object):
         loss_prior_total = torch.tensor(0.0).to(self.device)
         loss_total = torch.tensor(0.0).to(self.device)
 
+        # Compute the mean of the frames in Fourier space (frequency (0,0) to use it in the s_u prior        
+        
+        self.n_f = frames_ft[0].shape[1]
+
         self.pars_s0_avg = [None] * 4
         
-        for i in range(self.n_o):
+        for i in range(self.n_o):            
 
             if self.loss_filter == 'wiener':
 
-                s_u, s2, K, v0, p = self.get_su_s2(obj=i, sigma=sigma, pars_s0=pars_s0)
+                frames_mean = torch.mean(frames_ft[i][:, :, 0, 0], dim=1).real
 
-                # s_u, K, v0, p = self.get_su(self.rho[i], pars_s0[:, i, :])
+                s_u, s2, K, v0, p = self.get_su_s2(obj=i, sigma=sigma, pars_s0=pars_s0, frames_mean=frames_mean)
                                 
                 # The value of s_u in the case of the joint estimation should be
                 # selected by hand to give good results
                 # sigma**2/s_u should be the ration between noise and estimated object power spectrum
                 # s2 = torch.mean(sigma[i]**2, dim=1) * 10
-                hu2 = s2[:, None, None] + s_u * torch.sum(psf_ft[i] * torch.conj(psf_ft[i]), dim=1)                
-                du2 = torch.sum(frames_ft[i] * torch.conj(frames_ft[i]), dim=1)
-                hu_du = torch.sum(torch.conj(frames_ft[i]) * psf_ft[i], dim=1)
-                hu_du2 = s_u * hu_du * torch.conj(hu_du)
                 
+                # m_prior = torch.mean(frames_ft[i],dim=1,keepdims=True)
+                # du = frames_ft[i] - m_prior * psf_ft[i]
+                du = frames_ft[i]
+                hu2 = s2[:, None, None] + s_u * torch.sum(psf_ft[i] * torch.conj(psf_ft[i]), dim=1)
+                du2 = torch.sum(du * torch.conj(du), dim=1)
+                hu_du = torch.sum(torch.conj(du) * psf_ft[i], dim=1)
+                hu_du2 = s_u * hu_du * torch.conj(hu_du)
+                                
                 loss_data = 0.5 * (du2 - hu_du2 / hu2) / s2[:, None, None]
 
                 loss_data *= self.mask_diffraction_th[i][None, :, :]
@@ -961,7 +977,8 @@ class Deconvolution(object):
                     self.pars_s0_out[:, i, 3] = s2.detach()
                     
                     # Prior loss consequence of the marginalization of the object in the joing loss
-                    loss_prior_marginal = 0.5 * torch.log(hu2)
+                    # plus the term depending on the noise variance
+                    loss_prior_marginal = 0.5 * torch.log(hu2) + 0.5 * (self.n_f - 1.0) * torch.log(s2[:, None, None])
 
                     # Prior loss on sigma**2 to avoid zero division and to keep it in a reasonable range
                     # We use a Gaussian prior on log(sigma**2) with mean given by the average of sigma**2 
@@ -971,17 +988,17 @@ class Deconvolution(object):
 
                     # Prior loss on K, v0 and p to keep them in a reasonable range
 
-                    # Gaussian prior on log(K) with mean log(1.0) (peak power spectrum for normalized images) and variance 1.0
-                    loss_prior_K = (torch.log(K) - np.log(self.K_prior[0]))**2 / self.K_prior[1]**2
-
+                    # Gaussian prior on log(K) with mean (peak power spectrum for normalized images) and variance 1.0
+                    loss_prior_K = 0.5 * (torch.log10(K) - np.log10(self.K_prior[0]))**2 / self.K_prior[1]**2 + torch.log10(K)
+                    
                     # Gaussian prior on log(v0) with mean log(0.1) (cutoff frequency for the power spectrum) and variance 1.0
-                    loss_prior_v0 = (torch.log(v0) - np.log(self.v0_prior[0]))**2 / self.v0_prior[1]**2
+                    loss_prior_v0 = 0.5 * (torch.log10(v0) - np.log10(self.v0_prior[0]))**2 / self.v0_prior[1]**2 #+ torch.log10(v0)
 
                     # Gaussian prior on log(p) with mean log(2.0) (power law index for the power spectrum) and variance 1.0
-                    loss_prior_p = (p - self.p_prior[0])**2 / self.p_prior[1]**2
+                    loss_prior_p = 0.5 * (p - self.p_prior[0])**2 / self.p_prior[1]**2
 
-                    loss_prior = loss_prior_marginal + loss_prior_s2 + loss_prior_K + loss_prior_v0 + loss_prior_p
-
+                    loss_prior = loss_prior_marginal + loss_prior_K + loss_prior_p + loss_prior_v0 + loss_prior_s2
+                    
                     loss_prior *= self.mask_diffraction_th[i][None, :, :]
 
                     loss = loss_data + loss_prior
@@ -1584,7 +1601,7 @@ class Deconvolution(object):
 
                     # We initialize sigma2 with the average of the noise variance across frames
                     for i in range(self.n_o):
-                        pars_s0[:, i, 0] = np.log(1.0)
+                        pars_s0[:, i, 0] = np.log(100.0)
                         pars_s0[:, i, 1] = np.log(0.1) # log v0
                         pars_s0[:, i, 2] = np.log(2.0) #
                         pars_s0[:, i, 3] = np.log(sigma_seq[i].mean().item()**2)
@@ -1765,17 +1782,17 @@ class Deconvolution(object):
                 tmp['LDATA'] = f'{loss_data.detach().item():8.6f}'
                 tmp['LPRIOR'] = f'{loss_prior.detach().item():8.6f}'
                 if self.loss_type == 'marginal':
-                    tmp['K'] = f'{self.pars_s0_avg[0].item() / self.npix:6.2f}'
+                    tmp['K'] = f'{self.pars_s0_avg[0].item():6.2f}'
                     tmp['v0'] = f'{self.pars_s0_avg[1].item():6.2f}'
                     tmp['p'] = f'{self.pars_s0_avg[2].item():6.2f}'
-                    tmp['sig'] = f'{np.sqrt(self.pars_s0_avg[3].item()):6.3f}'
+                    tmp['sig'] = f'{np.sqrt(self.pars_s0_avg[3].item()):7.4f}'
                 if self.use_jitter:
                     tmp['sx'] = f'{torch.mean(torch.exp(jitter_torch[:, :, 0])).item():6.3f}'
                     tmp['sy'] = f'{torch.mean(torch.exp(jitter_torch[:, :, 1])).item():6.3f}'
                     tmp['rxy'] = f'{torch.mean(torch.tanh(jitter_torch[:, :, 2])).item():6.3f}'
                 tmp['L'] = f'{loss.detach().item():8.6f}'
                 t.set_postfix(ordered_dict=tmp)
-
+                
                 n_active = self.anneal[loop]
 
             self.tf_convergence = time.time()

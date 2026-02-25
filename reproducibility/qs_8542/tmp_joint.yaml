@@ -10,14 +10,14 @@ images:
 object1:
     wavelength : 8542.0
     image_filter: scharmer
-    cutoff : [0.85, 0.9]
-    s_u_joint: 100.0
+    cutoff : [0.85, 0.90]
+    s_u_joint: 10000.0
 
 object2:
     wavelength : 8542.0
     image_filter: scharmer
-    cutoff : [0.85, 0.9]
-    s_u_joint: 100.0
+    cutoff : [0.85, 0.90]
+    s_u_joint: 10000.0
     
 optimization:
     gpu : 0
@@ -25,8 +25,8 @@ optimization:
     softplus_scale : 1.0    
     lr_obj : 0.02
     lr_modes : 0.08
-    lr_prior : 0.5
-    loss_type: marginal
+    lr_prior : 0.2
+    loss_type: joint
 
 regularization:
      iuwt1:
@@ -37,7 +37,6 @@ regularization:
 psf:
     model : kl
     nmax_modes : 54
-    jitter : False
 
 initialization:
     object : contrast
@@ -47,14 +46,3 @@ annealing:
     type: linear
     start_pct : 0.1
     end_pct : 0.6
-
-priors:
-    K:
-        mean: 1.0
-        sigma: 1.0
-    v0:
-        mean: 0.1
-        sigma: 1.0
-    p:
-        mean: 2.0
-        sigma: 1.0

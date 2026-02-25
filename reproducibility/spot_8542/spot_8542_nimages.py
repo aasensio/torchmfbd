@@ -12,11 +12,12 @@ from astropy.io import fits
 
 if __name__ == '__main__':
 
-    # pos = ['-1755', '-845', '-390', '-195', '-130', '-65', '+0', '+65', '+130', '+195', '+390', '+845', '+1755']
-    lam = 7  # +65 mA
     xy0 = [200, 200]
+
+    # pos = ['-1755', '-780', '-260', '-130', '-65', '+0', '+65', '+130', '+260', '+780', '+1755']
+    lam = 6 # +65 mA
     npix = 512
-    obs_file = f"../obs/qs_20190801_081547_8542_npix512_original.h5"
+    obs_file = f"../obs/spot_20200727_083509_8542_npix512_original.h5"
 
     if (os.path.exists(obs_file)):
         print(f'Reading observations from {obs_file}...')
@@ -25,15 +26,15 @@ if __name__ == '__main__':
         im_d = None
         f.close()
     else:
-        root = '/net/diablos/scratch/sesteban/reduc/reduc_andres/qs_20190801_081547'
-        label = '20190801_081547_nwav_al'
+        root = '/net/diablos/scratch/sesteban/reduc/reduc_andres/spot_20200727_083509_8542'
+        label = '20200727_083509_8542_nwav_al'
         print(f'Reading wavelength point {lam}...')
         wb, nb = readsst(root, 
                          label, 
                          cam=0, 
                          lam=lam, 
                          mod=0, 
-                         seq=[10, 11], 
+                         seq=[0, 1], 
                          xrange=[xy0[0], xy0[0]+npix], 
                          yrange=[xy0[1], xy0[1]+npix], 
                          destretch=False,
@@ -50,13 +51,11 @@ if __name__ == '__main__':
         f.create_dataset('im', data=im)
         f.close()
     
-    for noise in [0.1, 0.3]:
-        frames = im[:, :, :, 0:npix, 0:npix]
+    for nimages in [2, 5]:
+        frames = im[:, :, 0:nimages, 0:npix, 0:npix]
 
         frames /= np.mean(frames, axis=(-1, -2), keepdims=True)
-
-        frames += noise * np.random.randn(*frames.shape)
-
+        
         contrast = np.std(frames, axis=(-1,-2)) / np.mean(frames, axis=(-1,-2))
         ind_best_contrast = np.argmax(contrast[0, 0, :])
 
@@ -69,12 +68,12 @@ if __name__ == '__main__':
         ##########################
         # Marginal deconvolution
         ##########################
-        decSI = torchmfbd.Deconvolution('qs_8542_marginal.yaml')
+        decSI = torchmfbd.Deconvolution('spot_8542_marginal.yaml')
 
         # Patchify and add the frames
         frames_patches = [None] * 2
         for i in range(2):        
-            frames_patches[i] = patchify.patchify(frames[:, i, :, :, :], patch_size=88, stride_size=40, flatten_sequences=True)
+            frames_patches[i] = patchify.patchify(frames[:, i, :, :, :], patch_size=92, stride_size=40, flatten_sequences=True)
             decSI.add_frames(frames_patches[i], id_object=i, id_diversity=0, diversity=0.0)
                 
         
@@ -90,8 +89,8 @@ if __name__ == '__main__':
             best_frame.append(patchify.unpatchify(frames_patches[i][:, ind_best_contrast, :, :], apodization=6, weight_type='cosine', weight_params=30).cpu().numpy())
         
         mfbd = [None] * 2
-        mfbd[0] = fits.open('../aux/camXX_2019-08-01T08:15:47_00010_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]    
-        mfbd[1] = fits.open('../aux/camXXV_2019-08-01T08:15:47_00010_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]
+        mfbd[0] = fits.open('../aux/camXX_2020-07-27T08:35:09_00000_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]
+        mfbd[1] = fits.open('../aux/camXXV_2020-07-27T08:35:09_00000_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]
         
         # Save the object as a fits file
         best_frame = np.concatenate([best_frame[0][0:1, ...], best_frame[1][0:1, ...]], axis=0)
@@ -105,17 +104,17 @@ if __name__ == '__main__':
         hdu5 = fits.ImageHDU(decSI.pars_s0[0].cpu().numpy())
         hdu6 = fits.ImageHDU(decSI.rho[0].cpu().numpy())
         hdul = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6])
-        hdul.writeto(f'qs_8542_marginal_noise_{noise}.fits', overwrite=True)
+        hdul.writeto(f'spot_8542_marginal_nimages_{nimages}.fits', overwrite=True)
 
         ##########################
         # Joint deconvolution
         ##########################
-        decSI = torchmfbd.Deconvolution('qs_8542_joint.yaml')
+        decSI = torchmfbd.Deconvolution('spot_8542_joint.yaml')
 
         # Patchify and add the frames
         frames_patches = [None] * 2
         for i in range(2):        
-            frames_patches[i] = patchify.patchify(frames[:, i, :, :, :], patch_size=88, stride_size=40, flatten_sequences=True)
+            frames_patches[i] = patchify.patchify(frames[:, i, :, :, :], patch_size=92, stride_size=40, flatten_sequences=True)
             decSI.add_frames(frames_patches[i], id_object=i, id_diversity=0, diversity=0.0)
                 
         
@@ -131,8 +130,8 @@ if __name__ == '__main__':
             best_frame.append(patchify.unpatchify(frames_patches[i][:, ind_best_contrast, :, :], apodization=6, weight_type='cosine', weight_params=30).cpu().numpy())
         
         mfbd = [None] * 2
-        mfbd[0] = fits.open('../aux/camXX_2019-08-01T08:15:47_00010_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]    
-        mfbd[1] = fits.open('../aux/camXXV_2019-08-01T08:15:47_00010_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]
+        mfbd[0] = fits.open('../aux/camXX_2020-07-27T08:35:09_00000_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]    
+        mfbd[1] = fits.open('../aux/camXXV_2020-07-27T08:35:09_00000_8542_8542_+65_lc0.fits')[0].data[None, :, ::-1]
         
         # Save the object as a fits file
         best_frame = np.concatenate([best_frame[0][0:1, ...], best_frame[1][0:1, ...]], axis=0)
@@ -144,4 +143,4 @@ if __name__ == '__main__':
         hdu3 = fits.ImageHDU(decSI.obj[0].cpu().numpy())
         hdu4 = fits.ImageHDU(decSI.obj[1].cpu().numpy())            
         hdul = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4])
-        hdul.writeto(f'qs_8542_joint_noise_{noise}.fits', overwrite=True)
+        hdul.writeto(f'spot_8542_joint_nimages_{nimages}.fits', overwrite=True)

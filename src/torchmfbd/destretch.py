@@ -124,11 +124,13 @@ def apply_destretch(frames, tt, mode='bilinear'):
 
 def align(frames,              
               lr=0.01,              
-              border=10,
+              border=0,
+              region=None,
               n_iterations=20,              
               mode='bilinear',
               padding_mode='reflection',
-              no_shear=False
+              no_shear=False,
+              no_rotation=False
               ):
     
     """
@@ -204,6 +206,11 @@ def align(frames,
         if border > 0:
             t1 = t1[..., border:-border, border:-border]
             t2 = t2[..., border:-border, border:-border]
+
+        if region is not None:
+            x1, x2, y1, y2 = region            
+            t1 = t1[..., x1:x2, y1:y2]
+            t2 = t2[..., x1:x2, y1:y2]
 
         loss = torch.linalg.norm(t1 - t2, dim=(-1,-2))
         loss = torch.mean(loss)

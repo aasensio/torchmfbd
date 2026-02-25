@@ -10,7 +10,7 @@ images:
 object1:
     wavelength : 4300.0
     image_filter: scharmer
-    cutoff : [0.90, 0.95]
+    cutoff : [0.80, 0.85]
     s_u_joint : 100.0
     
 optimization:
@@ -18,7 +18,7 @@ optimization:
     transform : softplus
     softplus_scale : 1.0    
     lr_obj : 0.02
-    lr_modes : 0.02
+    lr_modes : 0.05
     lr_prior : 0.2
     loss_type: joint
 
@@ -40,7 +40,7 @@ initialization:
 annealing:
     type: linear
     start_pct : 0.0
-    end_pct : 0.5
+    end_pct : 0.6
 
 priors:
     K:

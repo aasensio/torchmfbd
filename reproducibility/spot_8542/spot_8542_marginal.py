@@ -76,7 +76,7 @@ if __name__ == '__main__':
     decSI.deconvolve(infer_object=False, 
                      optimizer='adam',                      
                      simultaneous_sequences=150,
-                     n_iterations=350)
+                     n_iterations=450)
         
     best_frame = []
     obj = []

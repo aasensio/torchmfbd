@@ -18,8 +18,8 @@ def crisp(save=False):
 
     fig, ax = pl.subplots(nrows=4, ncols=4, figsize=(19, 19), sharex=True, sharey=True, tight_layout=True)
 
-    vmins = [0.5, 0.3]
-    vmaxs = [1.6, 2.1]
+    vmins = [0.2, 0.3]
+    vmaxs = [2.1, 2.3]
 
     loop = 0
     for i in range(4):
@@ -122,7 +122,7 @@ def crisp(save=False):
     # s_u = K / (1.0 + (nu / v0)**p) / im.shape[0]
     s_u = K / (1.0 + (nu/v0)**2)**p
 
-    s_u /= im.shape[0]
+    s_u /= s_u[0]
 
     ax[0].loglog(kk, s_u , label=r'S$_u$', linewidth=2, linestyle='--', color='C0')
     # ax[, 1].loglog(nu, s_u , label=r'S$_u$', linewidth=2, linestyle='--', color='C0')
@@ -226,19 +226,16 @@ def hifi(save=False):
     nx_gband = gband_joint[0].data.shape[0]
     pix_gband = 0.02489
 
-    nx_tio = tio[0].data.shape[0]
-    pix_tio = 0.04979
-
-    nx_ca3968 = ca3968[0].data.shape[0]
-    pix_ca3968 = 0.02489
-
     vmin = 0.3
     vmax = 1.5
 
-    fig, ax = pl.subplots(nrows=1, ncols=4, figsize=(20, 5), tight_layout=True)
+    npix = nx_gband
+    npix = 512
+    
+    fig, ax = pl.subplots(nrows=1, ncols=4, figsize=(20, 5), tight_layout=True, sharex=True, sharey=True)
 
     for i in range(2):
-        im = gband_joint[i].data[1:-1, 1:-1]
+        im = gband_joint[i].data[1:-1, 1:-1][0:npix, 0:npix]
         im /= np.mean(im[0:120, 0:120])
         contrast = np.nanstd(im[0:120, 0:120]) / np.nanmean(im[0:120, 0:120]) * 100.0
         ax[i].imshow(im, extent=[0, nx_gband*pix_gband, 0, nx_gband*pix_gband], cmap='gray', vmin=vmin, vmax=vmax)
@@ -249,7 +246,7 @@ def hifi(save=False):
                           color='yellow',
                           fontweight='bold')
         
-    im = gband_marginal[1].data[1:-1, 1:-1]
+    im = gband_marginal[1].data[1:-1, 1:-1][0:npix, 0:npix]
     im /= np.mean(im[0:120, 0:120])
     contrast = np.nanstd(im[0:120, 0:120]) / np.nanmean(im[0:120, 0:120]) * 100.0
     ax[2].imshow(im, extent=[0, nx_gband*pix_gband, 0, nx_gband*pix_gband], cmap='gray', vmin=vmin, vmax=vmax)
@@ -260,10 +257,10 @@ def hifi(save=False):
                         color='yellow',
                         fontweight='bold')
     
-    im = gband_speckle[0].data[8:nx_tio-32, 8:nx_tio-32]
+    im = gband_speckle[0].data[8:nx_gband-32, 8:nx_gband-32][0:npix, 0:npix]
     im /= np.mean(im[0:120, 0:120])
     contrast = np.nanstd(im[0:120, 0:120]) / np.nanmean(im[0:120, 0:120]) * 100.0
-    ax[3].imshow(im, extent=[0, nx_tio*pix_tio, 0, nx_tio*pix_tio], cmap='gray', vmin=vmin, vmax=vmax)
+    ax[3].imshow(im, extent=[0, nx_gband*pix_gband, 0, nx_gband*pix_gband], cmap='gray', vmin=vmin, vmax=vmax)
     ax[3].text(0.7, 0.95, f'{contrast:.2f}%',
                           transform=ax[3].transAxes, 
                           fontsize=18, 
@@ -298,7 +295,7 @@ def hifi(save=False):
     pix_hifi = 0.02761
 
     # QS    
-    im = gband_joint[0].data[1:-1, 1:-1]
+    im = gband_joint[0].data[1:-1, 1:-1][0:npix, 0:npix]
     kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
     
     pars_s0 = np.mean(gband_marginal[2].data, axis=0)
@@ -317,21 +314,21 @@ def hifi(save=False):
     
     ax.loglog(kk, s_u / s_u[0], label=r'S$_u$', linewidth=2, linestyle='--')
     
-    im = gband_joint[1].data[1:-1, 1:-1]
+    im = gband_joint[1].data[1:-1, 1:-1][0:npix, 0:npix]
     kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
     nu = kk / cutoff / pix_hifi
     
     ax.loglog(kk, power / 10.0**np.nanmean(np.log10(power[0:5])) , label='Joint', linewidth=2)
     
-    im = gband_speckle[0].data[8:nx_tio-32, 8:nx_tio-32]
+    im = gband_speckle[0].data[8:nx_gband-32, 8:nx_gband-32][0:npix, 0:npix]
     kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
     nu = kk / cutoff / pix_hifi
-    ax.loglog(kk, power / 10.0**np.nanmean(np.log10(power[0:5])), label='Marginal', linewidth=2)
+    ax.loglog(kk, power / 10.0**np.nanmean(np.log10(power[0:5])), label='Speckle', linewidth=2)
     
-    im = gband_marginal[1].data[1:-1, 1:-1]
+    im = gband_marginal[1].data[1:-1, 1:-1][0:npix, 0:npix]
     kk, power = torchmfbd.util.azimuthal_power(im / np.nanmean(im), apodization=10, angles=[-45,45], range_angles=15)
     nu = kk / cutoff / pix_hifi
-    ax.loglog(kk, power / 10.0**np.nanmean(np.log10(power[0:5])) , label='Speckle', linewidth=2)
+    ax.loglog(kk, power / 10.0**np.nanmean(np.log10(power[0:5])) , label='Marginal', linewidth=2)
     
     ax.legend()
     ax.set_ylim([1e-8, 5e1])
@@ -529,58 +526,472 @@ def power(save=False):
         pl.savefig('figs/power.pdf', dpi=300)
 
 
-def crisp_noise(save=False):
-    qs_8542_joint = fits.open('qs_8542/qs_8542_joint.fits')
-    qs_8542_joint_0_01 = fits.open('qs_8542/qs_8542_joint_noise_0.01.fits')
-    qs_8542_joint_0_1 = fits.open('qs_8542/qs_8542_joint_noise_0.1.fits')
-    qs_8542_joint_0_3 = fits.open('qs_8542/qs_8542_joint_noise_0.3.fits')
+def crisp_noise(which=[0, 1], save=False, obs='qs_8542'):
+    qs_8542_joint = fits.open(f'{obs}/{obs}_joint.fits')    
+    qs_8542_joint_0_1 = fits.open(f'{obs}/{obs}_joint_noise_0.1.fits')
+    qs_8542_joint_0_3 = fits.open(f'{obs}/{obs}_joint_noise_0.3.fits')
 
-    qs_8542_marginal = fits.open('qs_8542/qs_8542_marginal.fits')
-    qs_8542_marginal_0_01 = fits.open('qs_8542/qs_8542_marginal_noise_0.01.fits')
-    qs_8542_marginal_0_1 = fits.open('qs_8542/qs_8542_marginal_noise_0.1.fits')
-    qs_8542_marginal_0_3 = fits.open('qs_8542/qs_8542_marginal_noise_0.3.fits')
+    qs_8542_marginal = fits.open(f'{obs}/{obs}_marginal.fits')    
+    qs_8542_marginal_0_1 = fits.open(f'{obs}/{obs}_marginal_noise_0.1.fits')
+    qs_8542_marginal_0_3 = fits.open(f'{obs}/{obs}_marginal_noise_0.3.fits')
 
-    fig, ax = pl.subplots(nrows=3, ncols=4, figsize=(20, 15), tight_layout=True)
-
-    ax[0, 0].imshow(qs_8542_joint[0].data[0, ...], origin='lower')
-    ax[0, 0].set_title('QS 8542 - Frame')
-
-    ax[0, 1].imshow(qs_8542_joint_0_01[0].data[0, ...], origin='lower')
-    ax[0, 1].set_title('QS 8542 - Frame (noise=0.01)')
-
-    ax[0, 2].imshow(qs_8542_joint_0_1[0].data[0, ...], origin='lower')
-    ax[0, 2].set_title('QS 8542 - Frame (noise=0.1)')
-
-    ax[0, 3].imshow(qs_8542_joint_0_3[0].data[0, ...], origin='lower')
-    ax[0, 3].set_title('QS 8542 - Frame (noise=0.3)')
+    cutoff = 100.0 / (8542 * 1e-8) / 206265.0
+    diff_crisp = 1.22 * 8542e-8 / 100.0 * 206265.0
+    pix_crisp = 0.059
 
 
-    ax[1, 0].imshow(qs_8542_joint[1].data[0, ...], origin='lower')
-    ax[1, 0].set_title('QS 8542 - Joint')
+    if 0 in which:
 
-    ax[1, 1].imshow(qs_8542_joint_0_01[1].data[0, ...], origin='lower')
-    ax[1, 1].set_title('QS 8542 - Joint (noise=0.01)')
+        fig, ax = pl.subplots(nrows=3, ncols=3, figsize=(20, 15), tight_layout=True)
+    
+        img = qs_8542_joint[0].data[0, ...]
+        im = ax[0, 0].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[0, 0])
+        ax[0, 0].set_title(r'QS 8542 - Frame $\sigma_1$=0')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[0, 0].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[0, 0].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+        
+        img = qs_8542_joint_0_1[0].data[0, ...]
+        im = ax[0, 1].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[0, 1])
+        ax[0, 1].set_title(r'QS 8542 - Frame $\sigma_1$=0.1')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[0, 1].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[0, 1].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
 
-    ax[1, 2].imshow(qs_8542_joint_0_1[1].data[0, ...], origin='lower')
-    ax[1, 2].set_title('QS 8542 - Joint (noise=0.1)')
+        img = qs_8542_joint_0_3[0].data[0, ...]
+        im = ax[0, 2].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[0, 2])
+        ax[0, 2].set_title(r'QS 8542 - Frame $\sigma_1$=0.3')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[0, 2].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[0, 2].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
 
-    ax[1, 3].imshow(qs_8542_joint_0_3[1].data[0, ...], origin='lower')
-    ax[1, 3].set_title('QS 8542 - Joint (noise=0.3)')
 
-    ax[2, 0].imshow(qs_8542_marginal[1].data[0, ...], origin='lower')
-    ax[2, 0].set_title('QS 8542 - Marginal')
+        img = qs_8542_joint[1].data[0, ...]
+        im = ax[1, 0].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[1, 0])
+        ax[1, 0].set_title(r'QS 8542 - Joint $\sigma_1$=0')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[1, 0].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[1, 0].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
 
-    ax[2, 1].imshow(qs_8542_marginal_0_01[1].data[0, ...], origin='lower')
-    ax[2, 1].set_title('QS 8542 - Marginal (noise=0.01)')
+        img = qs_8542_joint_0_1[1].data[0, ...]
+        im = ax[1, 1].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[1, 1])
+        ax[1, 1].set_title(r'QS 8542 - Joint $\sigma_1$=0.1')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[1, 1].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[1, 1].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
 
-    ax[2, 2].imshow(qs_8542_marginal_0_1[1].data[0, ...], origin='lower')
-    ax[2, 2].set_title('QS 8542 - Marginal (noise=0.1)')
+        img = qs_8542_joint_0_3[1].data[0, ...]
+        im = ax[1, 2].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[1, 2])
+        ax[1, 2].set_title(r'QS 8542 - Joint $\sigma_1$=0.3')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[1, 2].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[1, 2].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
 
-    ax[2, 3].imshow(qs_8542_marginal_0_3[1].data[0, ...], origin='lower')
-    ax[2, 3].set_title('QS 8542 - Marginal (noise=0.3)')
+        img = qs_8542_marginal[1].data[0, ...]
+        im = ax[2, 0].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[2, 0])
+        ax[2, 0].set_title(r'QS 8542 - Marginal $\sigma_1$=0')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[2, 0].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[2, 0].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
 
-    if save:
-        pl.savefig('figs/qs_8542_noise.pdf', dpi=300)
+        img = qs_8542_marginal_0_1[1].data[0, ...]
+        im = ax[2, 1].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[2, 1])
+        ax[2, 1].set_title(r'QS 8542 - Marginal $\sigma_1$=0.1')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[2, 1].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[2, 1].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        img = qs_8542_marginal_0_3[1].data[0, ...]
+        im = ax[2, 2].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[2, 2])
+        ax[2, 2].set_title(r'QS 8542 - Marginal $\sigma_1$=0.3')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[2, 2].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[2, 2].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        if save:
+            pl.savefig('figs/qs_8542_noise.pdf', dpi=300)
+
+    
+    if 1 in which:
+
+        fig, ax = pl.subplots(nrows=1, ncols=3, figsize=(15, 5), tight_layout=True, sharey=True)
+
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_joint[0].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[0].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Frame', linewidth=2)
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_joint[1].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[0].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Joint', linewidth=2)
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_marginal[1].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[0].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Marginal', linewidth=2)
+        pars_s0 = np.mean(qs_8542_marginal[5].data, axis=0)
+        K, v0, p, s2 = pars_s0    
+        nu = kk / cutoff / pix_crisp    
+        s_u = K / (1.0 + (nu/v0)**2)**p
+        ax[0].loglog(kk, s_u / s_u[0], label=r'S$_u$', linewidth=2, linestyle='--')
+        ax[0].axvline(1.0 / (diff_crisp / pix_crisp), color='black')
+        ax[0].set_title(r'QS 8542 - $\sigma_1$=0')
+
+
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_joint_0_1[0].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[1].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Frame (noise=0.1)', linewidth=2)
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_joint_0_1[1].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[1].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Joint (noise=0.1)', linewidth=2)
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_marginal_0_1[1].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[1].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Marginal (noise=0.1)', linewidth=2)
+        pars_s0 = np.mean(qs_8542_marginal_0_1[5].data, axis=0)
+        K, v0, p, s2 = pars_s0    
+        nu = kk / cutoff / pix_crisp    
+        s_u = K / (1.0 + (nu/v0)**2)**p
+        ax[1].loglog(kk, s_u / s_u[0], label=r'S$_u$', linewidth=2, linestyle='--')
+        ax[1].axvline(1.0 / (diff_crisp / pix_crisp), color='black')
+        ax[1].set_title(r'QS 8542 - $\sigma_1$=0.1')
+
+
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_joint_0_3[0].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[2].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Frame (noise=0.3)', linewidth=2)
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_joint_0_3[1].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[2].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Joint (noise=0.3)', linewidth=2)
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_marginal_0_3[1].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[2].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Marginal (noise=0.3)', linewidth=2)
+        pars_s0 = np.mean(qs_8542_marginal_0_3[5].data, axis=0)
+        K, v0, p, s2 = pars_s0    
+        nu = kk / cutoff / pix_crisp    
+        s_u = K / (1.0 + (nu/v0)**2)**p
+        ax[2].loglog(kk, s_u / s_u[0], label=r'S$_u$', linewidth=2, linestyle='--')
+        ax[2].axvline(1.0 / (diff_crisp / pix_crisp), color='black')
+        ax[2].set_title(r'QS 8542 - $\sigma_1$=0.3')
+
+        ax[0].legend()        
+        fig.supxlabel('Spatial frequency [1/pix]')
+        fig.supylabel('Power [normalized]')
+        ax[0].set_ylim([1e-15, 10.0])
+        ax[1].set_ylim([1e-15, 10.0])
+        ax[2].set_ylim([1e-15, 10.0])        
+
+        if save:
+            pl.savefig('figs/qs_8542_azimuthal_power.pdf', dpi=300)
+
+
+def crisp_nimages(which=[0, 1], save=False, obs='qs_8542'):
+    qs_8542_joint = fits.open(f'{obs}/{obs}_joint.fits')    
+    qs_8542_joint_2 = fits.open(f'{obs}/{obs}_joint_nimages_2.fits')
+    qs_8542_joint_5 = fits.open(f'{obs}/{obs}_joint_nimages_5.fits')
+
+    qs_8542_marginal = fits.open(f'{obs}/{obs}_marginal.fits')    
+    qs_8542_marginal_2 = fits.open(f'{obs}/{obs}_marginal_nimages_2.fits')
+    qs_8542_marginal_5 = fits.open(f'{obs}/{obs}_marginal_nimages_5.fits')
+
+    cutoff = 100.0 / (8542 * 1e-8) / 206265.0
+    diff_crisp = 1.22 * 8542e-8 / 100.0 * 206265.0
+    pix_crisp = 0.059
+
+    
+    if 0 in which:
+
+        fig, ax = pl.subplots(nrows=3, ncols=3, figsize=(20, 15), tight_layout=True)
+
+        # N=2
+        img = qs_8542_joint_2[0].data[0, ...]
+        im = ax[0, 0].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[0, 0])
+        ax[0, 0].set_title(r'QS 8542 - Frame N=2')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[0, 0].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[0, 0].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        img = qs_8542_joint_2[1].data[0, ...]
+        im = ax[1, 0].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[1, 0])
+        ax[1, 0].set_title(r'QS 8542 - Joint N=2')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[1, 0].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[1, 0].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        img = qs_8542_marginal_2[1].data[0, ...]
+        im = ax[2, 0].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[2, 0])
+        ax[2, 0].set_title(r'QS 8542 - Marginal N=2')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[2, 0].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[2, 0].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        # N=5
+        img = qs_8542_joint_5[0].data[0, ...]
+        im = ax[0, 1].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[0, 1])
+        ax[0, 1].set_title(r'QS 8542 - Frame N=5')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[0, 1].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[0, 1].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+
+        img = qs_8542_joint_5[1].data[0, ...]
+        im = ax[1, 1].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[1, 1])
+        ax[1, 1].set_title(r'QS 8542 - Joint N=5')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[1, 1].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[1, 1].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        img = qs_8542_marginal_5[1].data[0, ...]
+        im = ax[2, 1].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[2, 1])
+        ax[2, 1].set_title(r'QS 8542 - Marginal N=5')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[2, 1].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[2, 1].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        # N=12
+        img = qs_8542_joint[0].data[0, ...]
+        im = ax[0, 2].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[0, 2])
+        ax[0, 2].set_title(r'QS 8542 - Frame N=12')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[0, 2].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[0, 2].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+
+        img = qs_8542_joint[1].data[0, ...]
+        im = ax[1, 2].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[1, 2])
+        ax[1, 2].set_title(r'QS 8542 - Joint N=12')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[1, 2].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[1, 2].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        img = qs_8542_marginal[1].data[0, ...]
+        im = ax[2, 2].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[2, 2])
+        ax[2, 2].set_title(r'QS 8542 - Marginal N=12')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[2, 2].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[2, 2].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+
+        
+
+        if save:
+            pl.savefig('figs/qs_8542_nimages.pdf', dpi=300)
+
+    
+    if 1 in which:
+
+        fig, ax = pl.subplots(nrows=1, ncols=3, figsize=(15, 5), tight_layout=True, sharey=True)
+
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_joint_2[0].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[0].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Frame', linewidth=2)
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_joint_2[1].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[0].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Joint', linewidth=2)
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_marginal_2[1].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[0].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Marginal', linewidth=2)
+        pars_s0 = np.mean(qs_8542_marginal_2[5].data, axis=0)
+        K, v0, p, s2 = pars_s0    
+        nu = kk / cutoff / pix_crisp    
+        s_u = K / (1.0 + (nu/v0)**2)**p
+        ax[0].loglog(kk, s_u / s_u[0], label=r'S$_u$', linewidth=2, linestyle='--')
+        ax[0].axvline(1.0 / (diff_crisp / pix_crisp), color='black')
+        ax[0].set_title(r'QS 8542 - N=2')
+
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_joint_5[0].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[1].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Frame', linewidth=2)
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_joint_5[1].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[1].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Joint', linewidth=2)
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_marginal_5[1].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[1].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Marginal', linewidth=2)
+        pars_s0 = np.mean(qs_8542_marginal_5[5].data, axis=0)
+        K, v0, p, s2 = pars_s0    
+        nu = kk / cutoff / pix_crisp    
+        s_u = K / (1.0 + (nu/v0)**2)**p
+        ax[1].loglog(kk, s_u / s_u[0], label=r'S$_u$', linewidth=2, linestyle='--')
+        ax[1].axvline(1.0 / (diff_crisp / pix_crisp), color='black')
+        ax[1].set_title(r'QS 8542 - N=5')
+
+
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_joint[0].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[2].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Frame', linewidth=2)
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_joint[1].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[2].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Joint', linewidth=2)
+        kk, power = torchmfbd.util.azimuthal_power(qs_8542_marginal[1].data[0, ...], apodization=10, angles=[-45,45], range_angles=15)
+        ax[2].loglog(kk, power / 10.0**np.nanmean(np.log10(power[5:8])), label='Marginal', linewidth=2)
+        pars_s0 = np.mean(qs_8542_marginal[5].data, axis=0)
+        K, v0, p, s2 = pars_s0    
+        nu = kk / cutoff / pix_crisp    
+        s_u = K / (1.0 + (nu/v0)**2)**p
+        ax[2].loglog(kk, s_u / s_u[0], label=r'S$_u$', linewidth=2, linestyle='--')
+        ax[2].axvline(1.0 / (diff_crisp / pix_crisp), color='black')
+        ax[2].set_title(r'QS 8542 - N=12')
+
+        ax[0].legend()        
+        fig.supxlabel('Spatial frequency [1/pix]')
+        fig.supylabel('Power [normalized]')
+        ax[0].set_ylim([1e-15, 10.0])
+        ax[1].set_ylim([1e-15, 10.0])
+        ax[2].set_ylim([1e-15, 10.0])        
+
+
+        if save:
+            pl.savefig('figs/qs_8542_azimuthal_power.pdf', dpi=300)
+
+def crisp_su(which=[0, 1], save=False, obs='qs_8542'):
+    # qs_8542_joint = fits.open(f'{obs}/{obs}_joint.fits')    
+    qs_8542_joint_10 = fits.open(f'{obs}/{obs}_joint_su_10.0.fits')
+    qs_8542_joint_100 = fits.open(f'{obs}/{obs}_joint_su_100.0.fits')
+    qs_8542_joint_1000 = fits.open(f'{obs}/{obs}_joint_su_1000.0.fits')
+    qs_8542_joint_10000 = fits.open(f'{obs}/{obs}_joint_su_10000.0.fits')
+
+    qs_8542_marginal = fits.open(f'{obs}/{obs}_marginal.fits')    
+    
+    cutoff = 100.0 / (8542 * 1e-8) / 206265.0
+    diff_crisp = 1.22 * 8542e-8 / 100.0 * 206265.0
+    pix_crisp = 0.059
+
+
+    if 0 in which:
+
+        fig, ax = pl.subplots(nrows=5, ncols=1, figsize=(7, 20), tight_layout=True)
+    
+        img = qs_8542_joint_10[1].data[0, ...]
+        im = ax[0].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[0])
+        ax[0].set_title(r'QS 8542 - Joint $\sigma^2/S_u=1.4\times 10^{-5}$')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[0].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[0].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        img = qs_8542_joint_100[1].data[0, ...]
+        im = ax[1].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[1])
+        ax[1].set_title(r'QS 8542 - Joint $\sigma^2/S_u=1.4\times 10^{-6}$')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[1].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[1].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        img = qs_8542_joint_1000[1].data[0, ...]
+        im = ax[2].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[2])
+        ax[2].set_title(r'QS 8542 - Joint $\sigma^2/S_u=1.4\times 10^{-7}$')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[2].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[2].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        img = qs_8542_joint_10000[1].data[0, ...]
+        im = ax[3].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[3])
+        ax[3].set_title(r'QS 8542 - Joint $\sigma^2/S_u=1.4\times 10^{-8}$')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[3].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[3].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        img = qs_8542_marginal[1].data[0, ...]
+        im = ax[4].imshow(img, origin='lower', cmap='gray')
+        pl.colorbar(im, ax=ax[4])
+        ax[4].set_title(r'QS 8542 - Marginal')
+        contrast = np.nanstd(img) / np.nanmean(img) * 100.0
+        ax[4].text(0.75, 0.95, f'{contrast:.1f}%',
+                          transform=ax[4].transAxes, 
+                          fontsize=18, 
+                          verticalalignment='top', 
+                          color='yellow',
+                          fontweight='bold')
+
+        if save:
+            pl.savefig('figs/qs_8542_noise.pdf', dpi=300)
 
 
 if __name__ == '__main__':
@@ -591,7 +1002,11 @@ if __name__ == '__main__':
 
     # crisp(save)
 
-    crisp_noise(save)
+    # crisp_noise(which=[0, 1], save=save, obs='qs_8542')
+
+    crisp_nimages(which=[0, 1], save=save, obs='qs_8542')
+
+    # crisp_su(which=[0], save=save, obs='qs_8542')
         
     # hifi(save)
 
